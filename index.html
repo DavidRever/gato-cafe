@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Cat: Coffee Rush</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e24;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin: 10px 0 5px 0;
+            font-size: 24px;
+            color: #eceff1;
+        }
+
+        p {
+            margin: 0 0 15px 0;
+            color: #b0bec5;
+            font-size: 14px;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            background-color: #2b2d42;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+        }
+
+        .btn {
+            background-color: #ffb703;
+            color: #023047;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background-color: #fb8500;
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Office Cat: Coffee Rush ☕🐾</h1>
+    <p>Usa las flechas ⬅️ y ➡️ (o A y D) para moverte</p>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="ui-overlay">
+            <h2 style="font-size: 32px; margin-bottom: 10px;">¡Turno en la Oficina!</h2>
+            <p style="color: #e0e0e0;">Ayuda al gato a atrapar todo el café antes de que caiga al suelo.</p>
+            <button class="btn" onclick="startGame()">¡Empezar a Jugar!</button>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="game-over-screen" class="ui-overlay hidden">
+            <h2 style="font-size: 36px; color: #e63946; margin-bottom: 5px;">¡Se acabó el café! 😿</h2>
+            <p id="final-score" style="font-size: 20px; color: #fff;"></p>
+            <button class="btn" onclick="startGame()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Estado del juego
+        let gameRunning = false;
+        let score = 0;
+        let lives = 3;
+        let speedMultiplier = 1;
+        let animationFrameId;
+
+        // Teclas
+        const keys = { left: false, right: false };
+
+        // Jugador (Gato)
+        const cat = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 75,
+            width: 50,
+            height: 45,
+            speed: 8,
+            facingLeft: false
+        };
+
+        // Objetos de Café
+        let coffees = [];
+        let spawnTimer = 0;
+
+        // Escuchadores de eventos de teclado
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+        });
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            
+            score = 0;
+            lives = 3;
+            speedMultiplier = 1;
+            coffees = [];
+            cat.x = canvas.width / 2 - cat.width / 2;
+            gameRunning = true;
+
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            gameLoop();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('final-score').innerText = `Puntaje final: ${score} cafés recolectados`;
+            document.getElementById('game-over-screen').classList.remove('hidden');
+        }
+
+        // DIBUJO DEL FONDO DE OFICINA
+        function drawOfficeBackground() {
+            // Paredes y Suelo
+            ctx.fillStyle = '#3a3d52';
+            ctx.fillRect(0, 0, canvas.width, canvas.height - 30);
+            
+            ctx.fillStyle = '#222431'; // Zócalo / Alfombra de oficina
+            ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+
+            // Ventanas de la oficina (Vista nocturna/atardecer)
+            for (let i = 0; i < 2; i++) {
+                let wx = 120 + i * 400;
+                ctx.fillStyle = '#1c1e29';
+                ctx.fillRect(wx, 40, 160, 120);
+                ctx.fillStyle = '#4a4e69'; // Marco
+                ctx.strokeRect(wx, 40, 160, 120);
+                // Edificios lejanos
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(wx + 20, 90, 30, 70);
+                ctx.fillRect(wx + 70, 70, 40, 90);
+                ctx.fillRect(wx + 120, 100, 25, 60);
+            }
+
+            // Escritorios y Computadoras
+            const desks = [50, 320, 590];
+            desks.forEach(dx => {
+                // Escritorio
+                ctx.fillStyle = '#8d5b4c';
+                ctx.fillRect(dx, canvas.height - 100, 150, 70);
+                ctx.fillStyle = '#673e33';
+                ctx.fillRect(dx + 10, canvas.height - 90, 130, 60);
+
+                // Monitor
+                ctx.fillStyle = '#1e1e1e';
+                ctx.fillRect(dx + 45, canvas.height - 150, 60, 45); // Pantalla
+                ctx.fillStyle = '#00b4d8'; // Brillo pantalla
+                ctx.fillRect(dx + 48, canvas.height - 147, 54, 39);
+                ctx.fillStyle = '#333';
+                ctx.fillRect(dx + 70, canvas.height - 105, 10, 8); // Soporte
+                ctx.fillRect(dx + 60, canvas.height - 98, 30, 4); // Base
+            });
+        }
+
+        // DIBUJO DEL GATO
+        function drawCat() {
+            ctx.save();
+            ctx.translate(cat.x + cat.width / 2, cat.y + cat.height / 2);
+            if (cat.facingLeft) ctx.scale(-1, 1);
+
+            // Cuerpo (Gato Naranja)
+            ctx.fillStyle = '#ff8c00';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 20, 15, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cabeza
+            ctx.beginPath();
+            ctx.arc(12, -8, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Orejas
+            ctx.beginPath();
+            ctx.moveTo(4, -18);
+            ctx.lineTo(10, -28);
+            ctx.lineTo(16, -18);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(14, -18);
+            ctx.lineTo(20, -26);
+            ctx.lineTo(24, -16);
+            ctx.fill();
+
+            // Ojo
+            ctx.fillStyle = '#2b2d42';
+            ctx.beginPath();
+            ctx.arc(17, -10, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Nariz
+            ctx.fillStyle = '#ffb3c1';
+            ctx.beginPath();
+            ctx.arc(23, -6, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cola
+            ctx.strokeStyle = '#ff8c00';
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(-18, 5);
+            ctx.quadraticCurveTo(-30, -5, -25, -15);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // DIBUJO DE LA TAZA DE CAFÉ
+        function drawCoffee(coffee) {
+            ctx.save();
+            ctx.translate(coffee.x, coffee.y);
+
+            // Taza
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(-10, -12, 20, 22);
+            // Asa de la taza
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(11, -1, 6, -Math.PI / 2, Math.PI / 2);
+            ctx.stroke();
+
+            // Café líquido dentro
+            ctx.fillStyle = '#6f4e37';
+            ctx.fillRect(-8, -10, 16, 4);
+
+            // Humo del café
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1.5;
+            let time = Date.now() * 0.005;
+            ctx.beginPath();
+            ctx.moveTo(-4, -15);
+            ctx.quadraticCurveTo(-8 + Math.sin(time) * 3, -22, -4, -28);
+            ctx.moveTo(4, -15);
+            ctx.quadraticCurveTo(8 + Math.cos(time) * 3, -22, 4, -28);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function update() {
+            if (!gameRunning) return;
+
+            // Movimiento del gato
+            if (keys.left && cat.x > 0) {
+                cat.x -= cat.speed;
+                cat.facingLeft = true;
+            }
+            if (keys.right && cat.x < canvas.width - cat.width) {
+                cat.x += cat.speed;
+                cat.facingLeft = false;
+            }
+
+            // Generación de café
+            spawnTimer++;
+            if (spawnTimer > Math.max(20, 60 - score)) {
+                spawnTimer = 0;
+                coffees.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: -20,
+                    speed: (2 + Math.random() * 2) * speedMultiplier,
+                    radius: 12
+                });
+            }
+
+            // Dificultad progresiva
+            speedMultiplier = 1 + Math.floor(score / 10) * 0.15;
+
+            // Actualizar cafés
+            for (let i = coffees.length - 1; i >= 0; i--) {
+                let c = coffees[i];
+                c.y += c.speed;
+
+                // Detección de colisión con el gato
+                let catCenterX = cat.x + cat.width / 2;
+                let catCenterY = cat.y + cat.height / 2;
+                let dist = Math.hypot(c.x - catCenterX, c.y - catCenterY);
+
+                if (dist < c.radius + cat.width / 2) {
+                    score++;
+                    coffees.splice(i, 1);
+                    continue;
+                }
+
+                // Perder vida si toca el suelo
+                if (c.y > canvas.height - 20) {
+                    lives--;
+                    coffees.splice(i, 1);
+                    if (lives <= 0) {
+                        gameOver();
+                    }
+                }
+            }
+        }
+
+        function drawUI() {
+            // Puntos
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 20px Segoe UI, sans-serif';
+            ctx.fillText(`Cafés: ${score}`, 20, 35);
+
+            // Vidas (Corazones)
+            let hearts = '';
+            for (let i = 0; i < lives; i++) hearts += '❤️ ';
+            ctx.fillText(`Vidas: ${hearts}`, canvas.width - 160, 35);
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawOfficeBackground();
+            
+            coffees.forEach(drawCoffee);
+            drawCat();
+            drawUI();
+
+            update();
+
+            if (gameRunning) {
+                animationFrameId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Renderizado inicial del fondo
+        drawOfficeBackground();
+    </script>
+</body>
+</html>
