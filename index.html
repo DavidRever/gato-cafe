@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Cat: Coffee Rush</title>
+    <title>Office Cat: Coffee Rush & Stars</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -177,10 +177,10 @@
 </head>
 <body>
 
-    <h1>Office Cat: Coffee Rush ☕✨</h1>
+    <h1>Office Cat: Coffee Rush & Stars ☕✨</h1>
     <p class="instructions">
         Mover: Flechas ⬅️ ➡️ (o A,D) | Saltar: Flecha ⬆️ (o Espacio, mantén para saltar más alto) | Bajar Rápido: Flecha ⬇️<br>
-        Recolecta Café ☕ y Estrellas ✨. Evita Yunques 🔨. ¡Cada café te da 1 moneda 🪙!
+        Recolecta Café ☕, Café Dorado ☕✨ y Estrellas ✨. ¡Evita los obstáculos!
     </p>
 
     <div id="game-container">
@@ -361,7 +361,6 @@
                 ctx.fillStyle = '#8a5a2a'; ctx.beginPath(); ctx.arc(0, -19, 1.5, 0, Math.PI * 2); ctx.fill();
                 break;
             case 'pirate': {
-                // Parche de pirata que tapa el ojo visible del gato
                 ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = 1.6;
                 ctx.beginPath(); ctx.moveTo(-9, -9); ctx.lineTo(5, -2); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(-8, 4); ctx.lineTo(5, -2); ctx.stroke();
@@ -372,7 +371,6 @@
                 break;
             }
             case 'costume': {
-                // Lentes vistos de perfil, a la altura del ojo
                 ctx.strokeStyle = '#161616'; ctx.lineWidth = 1.6;
                 ctx.fillStyle = 'rgba(90,90,100,0.4)';
                 ctx.beginPath(); ctx.arc(5.5, -2, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -399,7 +397,6 @@
                 ctx.fillStyle = '#4361ee'; ctx.beginPath(); ctx.arc(6, -11, 1.5, 0, Math.PI * 2); ctx.fill();
                 break;
             case 'space': {
-                // Casco que envuelve toda la cabeza del gato, incluyendo las orejas
                 ctx.strokeStyle = '#c8ced4'; ctx.lineWidth = 2.2;
                 ctx.fillStyle = 'rgba(173,216,255,0.32)';
                 ctx.beginPath(); ctx.arc(1, -9, 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -433,7 +430,6 @@
 
         let jumpOffset = isJumping ? -3 : 0;
 
-        // sombra de contacto interna (contorno oscuro para contraste)
         ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1.5;
 
         // Cola
@@ -467,7 +463,7 @@
         ctx.fillStyle = palette.nose;
         ctx.beginPath(); ctx.arc(23, -6 + jumpOffset, 1.5, 0, Math.PI * 2); ctx.fill();
 
-        // Gorro / accesorio (dibujado al final para que cubra bien ojo/cabeza)
+        // Gorro / accesorio
         drawHatShape(ctx, hatId, jumpOffset);
 
         ctx.restore();
@@ -482,14 +478,6 @@
             ictx.clearRect(0, 0, canvas.width, canvas.height);
             drawGenericCat(ictx, 5, 10, 50, 45, CAT_PALETTES[color], false, false, null);
         });
-    }
-
-    function makeMiniCatCanvas(palette, hatId) {
-        const c = document.createElement('canvas');
-        c.width = 60; c.height = 60;
-        const cctx = c.getContext('2d');
-        drawGenericCat(cctx, 5, 12, 50, 45, palette, false, false, hatId);
-        return c;
     }
 
     /* ============================= BACKGROUNDS ============================= */
@@ -528,7 +516,6 @@
             groundBar('#4c566a');
             const wx = 30, ww = W - 60, wh = 220, wt = 100;
             ctx.fillStyle = '#2e3440'; ctx.fillRect(wx - 5, wt - 5, ww + 10, wh + 10);
-            // Cielo de atardecer visto por la ventana
             const skyG = ctx.createLinearGradient(0, wt, 0, wt + wh);
             skyG.addColorStop(0, '#3d5a80'); skyG.addColorStop(0.45, '#ee9b6b'); skyG.addColorStop(0.75, '#ffcf8a'); skyG.addColorStop(1, '#ffe3b0');
             ctx.fillStyle = skyG; ctx.fillRect(wx, wt, ww, wh);
@@ -538,7 +525,6 @@
             ctx.shadowBlur = 0;
             drawCloud(wx + ww * 0.22, wt + wh * 0.28, 0.6, 0.5);
             drawCloud(wx + ww * 0.5, wt + wh * 0.18, 0.45, 0.4);
-            // Skyline de edificios a contraluz
             ctx.fillStyle = 'rgba(46,52,64,0.85)';
             const skylineBase = wt + wh;
             const bWidths = [34, 50, 26, 60, 40, 30, 55, 36, 44, 28, 48, 32];
@@ -554,7 +540,6 @@
                 bx += bw + 6;
             });
             ctx.restore();
-            ctx.fillStyle = '#5e81ac';
             ctx.fillStyle = '#3b4252';
             const pw = ww / 4; for (let i = 1; i < 4; i++) ctx.fillRect(wx + pw * i - 3, wt, 6, wh);
             ctx.fillRect(0, 30, W, 8); ctx.fillRect(150, 0, 6, 40); ctx.fillRect(550, 0, 6, 40);
@@ -600,7 +585,7 @@
     }
 
     // ---- PLAYA ----
-    function drawBackgroundBeach(time) {
+    function drawBackgroundBeach() {
         ctx.fillStyle = skyGradient([[0, '#8ecae6'], [0.6, '#bfe9f7'], [1, '#f4f1de']], 0, H - 90);
         ctx.fillRect(0, 0, W, H - 90);
         ctx.save(); ctx.shadowColor = 'rgba(255,220,120,0.9)'; ctx.shadowBlur = 40;
@@ -608,704 +593,692 @@
         drawCloud(140, 70, 1, 0.9); drawCloud(360, 50, 0.7, 0.8);
         ctx.fillStyle = skyGradient([[0, '#4fb3c9'], [1, '#2a8fa8']], H - 150, H - 90);
         ctx.fillRect(0, H - 150, W, 60);
-        const t = time * 0.002;
-        ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2;
-        for (let i = 0; i < 4; i++) { const y = H - 140 + i * 14 + Math.sin(t + i) * 2; ctx.beginPath(); ctx.moveTo(0, y); for (let x = 0; x <= W; x += 40) ctx.lineTo(x, y + Math.sin(t + x * 0.02 + i) * 3); ctx.stroke(); }
-        ctx.fillStyle = '#f4e2b8'; ctx.fillRect(0, H - 90, W, 90);
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        for (let i = 0; i < 6; i++) ctx.fillRect(20 + i * 130, H - 88, 60, 4);
-        function palmTree(x, y, flip) {
-            ctx.save(); ctx.translate(x, y); if (flip) ctx.scale(-1, 1);
-            ctx.strokeStyle = '#8a5a2a'; ctx.lineWidth = 10; ctx.lineCap = 'round';
-            ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(-10, -60, 10, -110); ctx.stroke();
-            ctx.fillStyle = '#2a9d8f';
-            for (let a = -1; a <= 1.2; a += 0.5) { ctx.save(); ctx.translate(10, -110); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(20, 0, 26, 8, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
-            ctx.restore();
-        }
-        palmTree(60, H - 90, false); palmTree(W - 60, H - 90, true);
-        ctx.fillStyle = '#e63946'; ctx.fillRect(370, H - 150, 6, 60);
-        ctx.fillStyle = '#f1faee'; ctx.beginPath(); ctx.moveTo(373, H - 150); ctx.lineTo(310, H - 100); ctx.lineTo(373, H - 100); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = '#a8dadc'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(300, H - 60); ctx.lineTo(340, H - 100); ctx.lineTo(380, H - 60); ctx.stroke();
+        ctx.fillStyle = '#f4a261'; ctx.fillRect(0, H - 90, W, 90);
+        groundBar('#e76f51', 15);
     }
 
-    // ---- PARIS ----
-    function drawBackgroundParis(time) {
-        ctx.fillStyle = skyGradient([[0, '#3a1c71'], [0.5, '#d76d77'], [1, '#ffaf7b']]);
-        ctx.fillRect(0, 0, W, H - 30);
-        drawCloud(120, 70, 0.9, 0.35); drawCloud(600, 100, 1.1, 0.3);
-        ctx.fillStyle = 'rgba(30,20,40,0.55)';
-        [[60,60,140],[250,90,110],[520,80,120],[700,50,150]].forEach(function(b){
-            ctx.fillRect(b[0], H - 30 - b[2], 70, b[2]);
-        });
-        // Torre Eiffel
-        ctx.save(); ctx.translate(400, H - 30); ctx.strokeStyle = '#1d1a15'; ctx.fillStyle = '#1d1a15'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(-70, 0); ctx.lineTo(-14, -230); ctx.lineTo(14, -230); ctx.lineTo(70, 0); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-50, -60); ctx.lineTo(50, -60); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-30, -140); ctx.lineTo(30, -140); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(0, -60); ctx.lineTo(40, 0); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, -230); ctx.lineTo(0, -260); ctx.stroke();
-        ctx.shadowColor = 'rgba(255,220,120,0.8)'; ctx.shadowBlur = 8; ctx.fillStyle = '#ffd76a';
-        for (let y = -20; y > -220; y -= 22) { ctx.beginPath(); ctx.arc(0, y, 1.6, 0, Math.PI * 2); ctx.fill(); }
-        ctx.restore();
-        groundBar('#7a7a7a');
-        ctx.fillStyle = 'rgba(255,255,255,0.12)';
-        for (let i = 0; i < W; i += 26) ctx.fillRect(i, H - 30, 14, 30);
+    // ---- PARÍS ----
+    function drawBackgroundParis() {
+        ctx.fillStyle = skyGradient([[0, '#2b1e3a'], [0.4, '#6b3052'], [0.75, '#b85252'], [1, '#e89d68']]);
+        ctx.fillRect(0, 0, W, H);
+        drawCloud(200, 90, 0.9, 0.3); drawCloud(550, 70, 0.7, 0.3);
+        ctx.fillStyle = '#221526';
+        ctx.beginPath();
+        ctx.moveTo(370, H - 30); ctx.lineTo(385, 230); ctx.lineTo(395, 230); ctx.lineTo(410, H - 30); ctx.fill();
+        ctx.fillRect(380, 150, 20, 80); ctx.fillRect(388, 70, 4, 80);
+        groundBar('#1a101e');
     }
 
     // ---- LONDRES ----
-    function drawBackgroundUK(time) {
-        ctx.fillStyle = skyGradient([[0, '#6c7a89'], [1, '#c9d6df']]);
-        ctx.fillRect(0, 0, W, H - 60);
-        drawCloud(150, 60, 1.2, 0.9); drawCloud(500, 90, 1, 0.85); drawCloud(650, 50, 0.8, 0.8);
-        // Rio Tamesis
-        ctx.fillStyle = '#4a6fa5'; ctx.fillRect(0, H - 60, W, 30);
-        ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
-        for (let i = 0; i < W; i += 30) { ctx.beginPath(); ctx.moveTo(i, H - 45); ctx.lineTo(i + 15, H - 45); ctx.stroke(); }
-        groundBar('#5c5f66', 30);
-        // Big Ben
-        ctx.save(); ctx.translate(120, H - 60); ctx.fillStyle = '#8a7d5a'; ctx.strokeStyle = '#4a4230'; ctx.lineWidth = 2;
-        ctx.fillRect(-22, -220, 44, 220); ctx.strokeRect(-22, -220, 44, 220);
-        ctx.beginPath(); ctx.moveTo(-26, -220); ctx.lineTo(0, -260); ctx.lineTo(26, -220); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#f1e6c8'; ctx.beginPath(); ctx.arc(0, -195, 16, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#4a4230'; ctx.stroke();
-        ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(0, -195); ctx.lineTo(0, -206); ctx.moveTo(0, -195); ctx.lineTo(8, -191); ctx.stroke();
-        for (let wy = -170; wy > -30; wy -= 40) ctx.fillRect(-14, wy, 28, 20);
-        ctx.restore();
-        // Tower Bridge
-        ctx.save(); ctx.translate(560, H - 60); ctx.fillStyle = '#3d3d3d'; ctx.strokeStyle = '#1c1c1c'; ctx.lineWidth = 2;
-        ctx.fillRect(-100, -10, 12, 10); ctx.fillRect(88, -10, 12, 10);
-        [-90, 78].forEach(function(tx){
-            ctx.fillRect(tx, -140, 24, 140); ctx.strokeRect(tx, -140, 24, 140);
-            ctx.beginPath(); ctx.moveTo(tx - 4, -140); ctx.lineTo(tx + 12, -160); ctx.lineTo(tx + 28, -140); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = '#7dd3fc'; ctx.fillRect(tx + 6, -110, 12, 16); ctx.fillRect(tx + 6, -80, 12, 16); ctx.fillStyle = '#3d3d3d';
-        });
-        ctx.strokeStyle = '#1c1c1c'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(-88, -95); ctx.lineTo(100, -95); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-88, -60); ctx.lineTo(-14, -20); ctx.lineTo(14, -20); ctx.lineTo(100, -60); ctx.stroke();
-        ctx.restore();
-        ctx.fillStyle = '#e63946'; ctx.fillRect(350, H - 78, 16, 18); ctx.fillStyle = '#f1faee'; ctx.font = '10px sans-serif'; ctx.fillText('TEL', 353, H - 66);
+    function drawBackgroundUK() {
+        ctx.fillStyle = skyGradient([[0, '#1c2541'], [0.5, '#3a506b'], [1, '#5bc0be']]);
+        ctx.fillRect(0, 0, W, H);
+        drawCloud(150, 80, 1, 0.4); drawCloud(450, 100, 0.8, 0.4);
+        ctx.fillStyle = '#0b132b';
+        ctx.fillRect(580, H - 280, 70, 250);
+        ctx.beginPath(); ctx.moveTo(570, H - 280); ctx.lineTo(615, H - 360); ctx.lineTo(660, H - 280); ctx.fill();
+        ctx.fillStyle = '#ffb703'; ctx.beginPath(); ctx.arc(615, H - 230, 18, 0, Math.PI * 2); ctx.fill();
+        groundBar('#0b132b');
     }
 
-    // ---- NIEVE / AURORA ----
-    let snowFlakes = null;
-    function drawBackgroundSnow(time) {
-        ctx.fillStyle = skyGradient([[0, '#050914'], [0.6, '#0d1a33'], [1, '#152238']]);
-        ctx.fillRect(0, 0, W, H - 40);
-        if (!snowFlakes) {
-            snowFlakes = [];
-            for (let i = 0; i < 60; i++) snowFlakes.push({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 2, s: 0.3 + Math.random() * 0.8, ph: Math.random() * 10 });
-        }
-        ctx.fillStyle = '#ffffff';
-        for (let i = 0; i < 70; i++) { const sx = (i * 97) % W, sy = (i * 53) % (H - 40); const tw = 0.4 + 0.6 * Math.abs(Math.sin(time * 0.001 + i)); ctx.globalAlpha = tw; ctx.fillRect(sx, sy, 1.6, 1.6); }
-        ctx.globalAlpha = 1;
-        const t = time * 0.0006;
-        const bands = [['rgba(80,255,170,0.25)', 60], ['rgba(120,180,255,0.2)', 110], ['rgba(200,120,255,0.18)', 160]];
-        bands.forEach(function(b, bi) {
-            ctx.beginPath(); ctx.moveTo(0, b[1]);
-            for (let x = 0; x <= W; x += 20) ctx.lineTo(x, b[1] + Math.sin(t * (1 + bi * 0.4) + x * 0.015 + bi) * 30);
-            ctx.lineTo(W, 0); ctx.lineTo(0, 0); ctx.closePath();
-            ctx.fillStyle = b[0]; ctx.fill();
-        });
-        ctx.fillStyle = '#9fb4c7';
-        ctx.beginPath(); ctx.moveTo(0, H - 40); ctx.lineTo(100, H - 150); ctx.lineTo(220, H - 60); ctx.lineTo(360, H - 170); ctx.lineTo(500, H - 60); ctx.lineTo(650, H - 160); ctx.lineTo(800, H - 40); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
-        [[100, H - 150], [360, H - 170], [650, H - 160]].forEach(function(p){ ctx.beginPath(); ctx.moveTo(p[0] - 22, p[1] + 30); ctx.lineTo(p[0], p[1]); ctx.lineTo(p[0] + 22, p[1] + 30); ctx.closePath(); ctx.fill(); });
-        function pineTree(x, y, sc) {
-            ctx.fillStyle = '#0f3d2e';
-            for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(x, y - (i + 1) * 26 * sc); ctx.lineTo(x - 20 * sc, y - i * 22 * sc); ctx.lineTo(x + 20 * sc, y - i * 22 * sc); ctx.closePath(); ctx.fill(); }
-            ctx.fillStyle = '#6f4518'; ctx.fillRect(x - 3, y, 6, 10 * sc);
-        }
-        pineTree(50, H - 40, 1); pineTree(740, H - 40, 1.2); pineTree(690, H - 40, 0.8);
-        ctx.fillStyle = '#eef4fb'; ctx.fillRect(0, H - 40, W, 40);
-        ctx.fillStyle = 'rgba(160,190,220,0.5)';
-        for (let i = 0; i < 8; i++) ctx.beginPath(), ctx.ellipse(i * 110 + 20, H - 15, 26, 6, 0, 0, Math.PI * 2), ctx.fill();
-        snowFlakes.forEach(function(f) { f.y += f.s; f.x += Math.sin((time * 0.001) + f.ph) * 0.4; if (f.y > H - 40) { f.y = -5; f.x = Math.random() * W; } ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill(); });
+    // ---- NIEVE ----
+    function drawBackgroundSnow() {
+        ctx.fillStyle = skyGradient([[0, '#03045e'], [0.4, '#0077b6'], [0.8, '#00b4d8'], [1, '#caf0f8']]);
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(144, 224, 239, 0.25)';
+        ctx.beginPath(); ctx.moveTo(0, 100); ctx.quadraticCurveTo(200, 40, 400, 120); ctx.quadraticCurveTo(600, 160, 800, 80); ctx.lineTo(800, 0); ctx.lineTo(0, 0); ctx.fill();
+        ctx.fillStyle = '#e0f7fa';
+        ctx.beginPath(); ctx.arc(150, H - 30, 180, Math.PI, 0); ctx.fill();
+        ctx.beginPath(); ctx.arc(550, H - 30, 240, Math.PI, 0); ctx.fill();
+        groundBar('#ffffff', 35);
     }
 
     // ---- DESIERTO ----
-    function drawBackgroundDesert(time) {
-        ctx.fillStyle = skyGradient([[0, '#2b5876'], [0.45, '#ffb75e'], [1, '#ffd97d']], 0, H - 40);
-        ctx.fillRect(0, 0, W, H - 40);
-        ctx.save(); ctx.shadowColor = 'rgba(255,240,180,0.9)'; ctx.shadowBlur = 50;
-        ctx.fillStyle = '#fff2c9'; ctx.beginPath(); ctx.arc(400, 150, 55, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-        function pyramid(cx, base, h, color) {
-            ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(cx - base / 2, H - 40); ctx.lineTo(cx, H - 40 - h); ctx.lineTo(cx + base / 2, H - 40); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.beginPath(); ctx.moveTo(cx, H - 40 - h); ctx.lineTo(cx + base / 2, H - 40); ctx.lineTo(cx + base / 6, H - 40); ctx.closePath(); ctx.fill();
-        }
-        pyramid(560, 260, 150, '#d9a15b'); pyramid(680, 180, 100, '#c88f4d'); pyramid(430, 140, 80, '#e0ac6b');
-        ctx.fillStyle = '#e0ac6b'; ctx.beginPath(); ctx.ellipse(230, H - 46, 50, 18, 0, Math.PI, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#c88f4d'; ctx.beginPath(); ctx.ellipse(210, H - 40, 20, 10, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#e3ae6f'; ctx.beginPath();
-        ctx.moveTo(0, H - 40); ctx.quadraticCurveTo(150, H - 70, 320, H - 40); ctx.quadraticCurveTo(500, H - 65, 800, H - 40); ctx.lineTo(800, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
-        function cactus(x, y) {
-            ctx.fillStyle = '#5c8a4a';
-            ctx.fillRect(x - 5, y - 40, 10, 40);
-            ctx.fillRect(x - 18, y - 26, 13, 8); ctx.fillRect(x - 18, y - 34, 8, 16);
-            ctx.fillRect(x + 5, y - 20, 13, 8); ctx.fillRect(x + 13, y - 28, 8, 16);
-        }
-        cactus(90, H - 38); cactus(730, H - 36);
+    function drawBackgroundDesert() {
+        ctx.fillStyle = skyGradient([[0, '#d4a373'], [0.4, '#faedcd'], [0.8, '#f4a261'], [1, '#e76f51']]);
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#e76f51';
+        ctx.beginPath(); ctx.arc(200, H - 30, 250, Math.PI, 0); ctx.fill();
+        ctx.beginPath(); ctx.arc(600, H - 30, 300, Math.PI, 0); ctx.fill();
+        groundBar('#264653', 25);
     }
 
-    function drawBackground(mapId, score, time) {
-        switch (mapId) {
-            case 'beach': drawBackgroundBeach(time); break;
-            case 'paris': drawBackgroundParis(time); break;
-            case 'uk': drawBackgroundUK(time); break;
-            case 'snow': drawBackgroundSnow(time); break;
-            case 'desert': drawBackgroundDesert(time); break;
-            default: drawBackgroundOffice(score);
+    function renderBackground(mapId, score) {
+        switch(mapId) {
+            case 'beach': drawBackgroundBeach(); break;
+            case 'paris': drawBackgroundParis(); break;
+            case 'uk': drawBackgroundUK(); break;
+            case 'snow': drawBackgroundSnow(); break;
+            case 'desert': drawBackgroundDesert(); break;
+            default: drawBackgroundOffice(score); break;
         }
     }
 
-    /* ============================= OBJECT DRAWING ============================= */
-    function glowBehind(x, y, r, color) {
-        const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2);
-        g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 2, 0, Math.PI * 2); ctx.fill();
-    }
+    /* ============================= GAME ENGINE ============================= */
+    let gameState = 'START';
+    let animFrameId = null;
 
-    function drawCoffee(x, y, time) {
-        glowBehind(x, y, 12, 'rgba(255,255,255,0.35)');
-        ctx.save(); ctx.translate(x, y);
-        ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1;
-        ctx.fillStyle = '#fdfdfd'; ctx.fillRect(-8, -10, 16, 20); ctx.strokeRect(-8, -10, 16, 20);
-        ctx.strokeStyle = '#fdfdfd'; ctx.lineWidth = 2.5;
-        ctx.beginPath(); ctx.arc(8, -1, 5, -Math.PI / 2, Math.PI / 2); ctx.stroke();
-        ctx.fillStyle = '#6f4e37'; ctx.fillRect(-6, -8, 12, 3);
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
-        const st = time * 0.005;
-        ctx.beginPath();
-        ctx.moveTo(-3, -13); ctx.quadraticCurveTo(-6 + Math.sin(st) * 3, -20, -3, -26);
-        ctx.moveTo(3, -13); ctx.quadraticCurveTo(6 + Math.cos(st) * 3, -20, 3, -26);
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    function drawAnvil(x, y) {
-        glowBehind(x, y, 16, 'rgba(255,70,70,0.3)');
-        ctx.save(); ctx.translate(x, y);
-        ctx.fillStyle = '#3a3a3a'; ctx.strokeStyle = '#e63946'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(-18, 12); ctx.lineTo(18, 12); ctx.lineTo(12, 2); ctx.lineTo(-12, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillRect(-8, -8, 16, 10); ctx.strokeRect(-8, -8, 16, 10);
-        ctx.beginPath(); ctx.moveTo(-22, -18); ctx.lineTo(15, -18); ctx.quadraticCurveTo(25, -8, 15, 2); ctx.lineTo(-22, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#e63946'; ctx.beginPath(); ctx.arc(-10, -8, 2.5, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-    }
-
-    function drawStar(x, y, time) {
-        glowBehind(x, y, 15, 'rgba(255,224,0,0.4)');
-        ctx.save(); ctx.translate(x, y);
-        ctx.rotate(time * 0.002);
-        const sc = 1 + Math.sin(time * 0.01) * 0.1; ctx.scale(sc, sc);
-        ctx.fillStyle = '#ffe000'; ctx.strokeStyle = '#ffb000'; ctx.lineWidth = 2;
-        const spikes = 5, outerR = 16, innerR = 7; let rot = Math.PI / 2 * 3; const step = Math.PI / spikes;
-        ctx.beginPath(); ctx.moveTo(0, -outerR);
-        for (let i = 0; i < spikes; i++) { ctx.lineTo(Math.cos(rot) * outerR, Math.sin(rot) * outerR); rot += step; ctx.lineTo(Math.cos(rot) * innerR, Math.sin(rot) * innerR); rot += step; }
-        ctx.lineTo(0, -outerR); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.restore();
-    }
-
-    /* ============================= GAME STATE ============================= */
-    let gameRunning = false, gameState = 'start';
-    let score = 0, lives = 3, currentLevel = 1;
-    let animationFrameId, hitFlash = 0;
-    const keys = { left: false, right: false, up: false, down: false };
-    let floaters = [];
-
-    const cat = {
-        x: W / 2 - 25, y: H - 75, width: 50, height: 45,
-        velX: 0, maxSpeed: 8, accel: 1.5, friction: 0.82,
-        facingLeft: false, velY: 0, isJumping: false,
-        jumpStrength: -18, gravity: 0.85, fastFallGravity: 2.1,
-        groundY: H - 75, powerupTimer: 0, isPoweredUp: false, powerupDuration: 600,
-        rotationAngle: 0, squash: 1, jumpBuffer: 0
+    let player = {
+        x: 100, y: 360, w: 45, h: 45,
+        vx: 0, vy: 0,
+        speed: 6.5,
+        jumpPower: -13.5,
+        gravity: 0.7,
+        isGrounded: false,
+        facingLeft: false,
+        lives: 3,
+        invulnerableTimer: 0,
+        starPowerTimer: 0
     };
 
-    let objects = [], spawnTimer = 0;
+    let keys = { left: false, right: false, up: false, down: false };
+    let items = [];
+    let obstacles = [];
+    let particles = [];
+    let floatingTexts = [];
+    let score = 0;
+    let coinsEarnedThisRun = 0;
+    let spawnTimer = 0;
+    let gameTime = 0;
 
-    /* ============================= INPUT ============================= */
-    window.addEventListener('keydown', function(e) {
-        if (gameState !== 'playing') return;
-        if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
-        if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
-        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') { keys.up = true; cat.jumpBuffer = 8; e.preventDefault(); }
-        if (e.key === 'ArrowDown' || e.key === 's') { keys.down = true; e.preventDefault(); }
-    });
-    window.addEventListener('keyup', function(e) {
-        if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
-        if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
-        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') {
-            keys.up = false;
-            if (cat.velY < -7) cat.velY = -7; // corte de salto para altura variable
-        }
-        if (e.key === 'ArrowDown' || e.key === 's') keys.down = false;
-    });
+    const GROUND_Y = H - 30 - 45;
 
-    /* ============================= UI WIRING ============================= */
-    const startScreenEl = document.getElementById('start-screen');
-    const shopScreenEl = document.getElementById('shop-screen');
-    const gameOverScreenEl = document.getElementById('game-over-screen');
-    const customizeScreenEl = document.getElementById('customize-screen');
+    function resetGame() {
+        player.x = 100;
+        player.y = GROUND_Y;
+        player.vx = 0;
+        player.vy = 0;
+        player.isGrounded = true;
+        player.facingLeft = false;
+        player.lives = 3;
+        player.invulnerableTimer = 0;
+        player.starPowerTimer = 0;
 
-    document.getElementById('cat-selection-container').innerHTML = ['orange','white','black','grey'].map(function(color, i){
-        return '<div class="cat-option' + (i === 0 ? ' selected' : '') + '" data-color="' + color + '">' +
-            '<canvas id="icon' + color.charAt(0).toUpperCase() + color.slice(1) + '" width="60" height="60"></canvas></div>';
-    }).join('');
-    initCatIcons();
-
-    document.getElementById('cat-selection-container').addEventListener('click', function(e) {
-        const opt = e.target.closest('.cat-option'); if (!opt) return;
-        document.querySelectorAll('.cat-option.selected').forEach(function(el){ el.classList.remove('selected'); });
-        opt.classList.add('selected'); selectedCatColor = opt.dataset.color;
-        refreshCustomizeRows();
-    });
-
-    function refreshCoinBadges() {
-        document.getElementById('start-coins').textContent = coins;
-        document.getElementById('customize-coins').textContent = coins;
-        document.getElementById('shop-coins').textContent = coins;
+        items = [];
+        obstacles = [];
+        particles = [];
+        floatingTexts = [];
+        score = 0;
+        coinsEarnedThisRun = 0;
+        spawnTimer = 0;
+        gameTime = 0;
+        hasNewPB = false;
     }
 
-    function refreshCustomizeRows() {
-        // Hats row: "none" + owned hats
+    function spawnEntities() {
+        spawnTimer++;
+        if (spawnTimer % 60 === 0) {
+            const rand = Math.random();
+            if (rand < 0.05) {
+                // Taza de café dorada (Rara, vale 10 monedas)
+                items.push({
+                    x: W + 20, y: Math.random() > 0.5 ? GROUND_Y - 80 : GROUND_Y - 140,
+                    w: 26, h: 26, type: 'goldenCoffee', baseY: 0, floatAngle: Math.random() * Math.PI
+                });
+            } else if (rand < 0.65) {
+                // Café normal
+                items.push({
+                    x: W + 20, y: Math.random() > 0.5 ? GROUND_Y - 60 : GROUND_Y - 120,
+                    w: 24, h: 24, type: 'coffee', baseY: 0, floatAngle: Math.random() * Math.PI
+                });
+            } else if (rand < 0.78) {
+                // Estrella
+                items.push({
+                    x: W + 20, y: GROUND_Y - 130,
+                    w: 26, h: 26, type: 'star', baseY: 0, floatAngle: Math.random() * Math.PI
+                });
+            } else {
+                // Obstáculo
+                const obsType = Math.random() > 0.5 ? 'anvil' : 'person';
+                obstacles.push({
+                    x: W + 20,
+                    y: obsType === 'anvil' ? -40 : GROUND_Y,
+                    w: obsType === 'anvil' ? 32 : 36,
+                    h: obsType === 'anvil' ? 32 : 50,
+                    type: obsType,
+                    vy: obsType === 'anvil' ? 5 : 0,
+                    vx: obsType === 'person' ? -(2 + Math.random() * 2) : -3
+                });
+            }
+        }
+    }
+
+    function createParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 6,
+                vy: (Math.random() - 0.5) * 6,
+                life: 1, color: color, size: 3 + Math.random() * 4
+            });
+        }
+    }
+
+    function addFloatingText(txt, x, y, color) {
+        floatingTexts.push({ text: txt, x: x, y: y, vy: -1.5, alpha: 1, color: color || '#ffd76a' });
+    }
+
+    function update() {
+        if (gameState !== 'PLAYING') return;
+        gameTime++;
+
+        // Controles de Jugador
+        if (keys.left) { player.vx = -player.speed; player.facingLeft = true; }
+        else if (keys.right) { player.vx = player.speed; player.facingLeft = false; }
+        else { player.vx *= 0.7; }
+
+        if (keys.up && player.isGrounded) {
+            player.vy = player.jumpPower;
+            player.isGrounded = false;
+        }
+
+        if (keys.down && !player.isGrounded) {
+            player.vy += 1.2;
+        }
+
+        player.vy += player.gravity;
+        player.x += player.vx;
+        player.y += player.vy;
+
+        // Limites de pantalla
+        if (player.x < 0) player.x = 0;
+        if (player.x + player.w > W) player.x = W - player.w;
+
+        if (player.y >= GROUND_Y) {
+            player.y = GROUND_Y;
+            player.vy = 0;
+            player.isGrounded = true;
+        }
+
+        if (player.invulnerableTimer > 0) player.invulnerableTimer--;
+        if (player.starPowerTimer > 0) player.starPowerTimer--;
+
+        spawnEntities();
+
+        // Actualizar Items
+        for (let i = items.length - 1; i >= 0; i--) {
+            let item = items[i];
+            item.x -= 3.5;
+            item.floatAngle += 0.08;
+
+            // Colisión con Jugador
+            if (checkCollision(player, item)) {
+                if (item.type === 'coffee') {
+                    score++;
+                    coins += 1;
+                    coinsEarnedThisRun += 1;
+                    saveCoins();
+                    createParticles(item.x, item.y, '#d4a373', 8);
+                    addFloatingText('+1 ☕', item.x, item.y, '#ffb703');
+                } else if (item.type === 'goldenCoffee') {
+                    score += 5;
+                    coins += 10;
+                    coinsEarnedThisRun += 10;
+                    saveCoins();
+                    createParticles(item.x, item.y, '#ffd700', 16);
+                    addFloatingText('+10 🪙✨', item.x, item.y, '#ffd700');
+                } else if (item.type === 'star') {
+                    player.starPowerTimer = 300; // 5 segundos
+                    createParticles(item.x, item.y, '#ffd60a', 15);
+                    addFloatingText('¡PODER ESTRELLA! ✨', item.x - 20, item.y, '#4cc9f0');
+                }
+                items.splice(i, 1);
+                continue;
+            }
+
+            if (item.x < -30) items.splice(i, 1);
+        }
+
+        // Actualizar Obstáculos
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            let obs = obstacles[i];
+            if (obs.type === 'anvil') {
+                if (obs.y < GROUND_Y) obs.y += obs.vy;
+                obs.x += obs.vx;
+            } else {
+                obs.x += obs.vx;
+            }
+
+            // Colisión con Jugador
+            if (checkCollision(player, obs)) {
+                // Si está bajo el efecto del poder de la estrella, destruye los obstáculos sin perder vida
+                if (player.starPowerTimer > 0) {
+                    createParticles(obs.x, obs.y, '#ffb703', 12);
+                    addFloatingText('¡DESTRUIDO! 💥', obs.x, obs.y, '#ffd700');
+                    obstacles.splice(i, 1);
+                    continue;
+                } else if (player.invulnerableTimer <= 0) {
+                    player.lives--;
+                    player.invulnerableTimer = 60; // 1 segundo
+                    createParticles(player.x, player.y, '#e63946', 12);
+
+                    if (player.lives <= 0) {
+                        endGame();
+                        return;
+                    }
+                }
+            }
+
+            if (obs.x < -50 || obs.y > H) obstacles.splice(i, 1);
+        }
+
+        // Partículas
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.03;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // Textos flotantes
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+            let ft = floatingTexts[i];
+            ft.y += ft.vy;
+            ft.alpha -= 0.025;
+            if (ft.alpha <= 0) floatingTexts.splice(i, 1);
+        }
+    }
+
+    function checkCollision(r1, r2) {
+        return !(r1.x + r1.w < r2.x ||
+                 r1.x > r2.x + r2.w ||
+                 r1.y + r1.h < r2.y ||
+                 r1.y > r2.y + r2.h);
+    }
+
+    function drawHUD() {
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(10, 10, 180, 40);
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.fillText('☕ ' + score, 20, 35);
+
+        // Vidas
+        let lifeStr = '';
+        for (let i = 0; i < player.lives; i++) lifeStr += '❤️ ';
+        ctx.fillText(lifeStr, 90, 35);
+
+        // Barra de poder estrella
+        if (player.starPowerTimer > 0) {
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(10, 55, 180, 10);
+            ctx.fillStyle = '#ffd60a';
+            ctx.fillRect(10, 55, (player.starPowerTimer / 300) * 180, 10);
+        }
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, W, H);
+
+        renderBackground(selectedMap, score);
+
+        // Dibujar Items
+        items.forEach(function(item) {
+            ctx.save();
+            let floatY = item.y + Math.sin(item.floatAngle) * 4;
+            ctx.font = '22px sans-serif';
+            if (item.type === 'coffee') {
+                ctx.fillText('☕', item.x, floatY + 20);
+            } else if (item.type === 'goldenCoffee') {
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 10;
+                ctx.fillText('☕✨', item.x, floatY + 20);
+            } else if (item.type === 'star') {
+                ctx.shadowColor = '#ffd60a';
+                ctx.shadowBlur = 12;
+                ctx.fillText('✨', item.x, floatY + 20);
+            }
+            ctx.restore();
+        });
+
+        // Dibujar Obstáculos
+        obstacles.forEach(function(obs) {
+            ctx.save();
+            ctx.font = '28px sans-serif';
+            if (obs.type === 'anvil') {
+                ctx.fillText('🔨', obs.x, obs.y + 28);
+            } else {
+                ctx.fillText('🚶', obs.x, obs.y + 36);
+            }
+            ctx.restore();
+        });
+
+        // Dibujar Jugador
+        if (gameState === 'PLAYING' || gameState === 'GAMEOVER') {
+            let opacity = 1;
+            if (player.invulnerableTimer > 0 && Math.floor(gameTime / 4) % 2 === 0) {
+                opacity = 0.4;
+            }
+
+            ctx.save();
+            if (player.starPowerTimer > 0) {
+                ctx.shadowColor = '#ffd60a';
+                ctx.shadowBlur = 20;
+            }
+            drawGenericCat(
+                ctx, player.x, player.y, player.w, player.h,
+                CAT_PALETTES[selectedCatColor],
+                player.facingLeft,
+                !player.isGrounded,
+                equippedHat,
+                0, opacity
+            );
+            ctx.restore();
+        }
+
+        // Partículas
+        particles.forEach(function(p) {
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+
+        // Textos Flotantes
+        floatingTexts.forEach(function(ft) {
+            ctx.save();
+            ctx.globalAlpha = ft.alpha;
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillStyle = ft.color;
+            ctx.fillText(ft.text, ft.x, ft.y);
+            ctx.restore();
+        });
+
+        if (gameState === 'PLAYING') {
+            drawHUD();
+        }
+    }
+
+    function gameLoop() {
+        update();
+        render();
+        animFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    function endGame() {
+        gameState = 'GAMEOVER';
+        if (score > personalBest) {
+            personalBest = score;
+            localStorage.setItem('officeCat_PB', personalBest);
+            hasNewPB = true;
+        }
+
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('coins-earned').innerText = coinsEarnedThisRun;
+        document.getElementById('total-coins-display').innerText = coins;
+        document.getElementById('best-score').innerText = personalBest;
+
+        const saveSection = document.getElementById('save-score-section');
+        if (hasNewPB) {
+            saveSection.classList.remove('hidden');
+        } else {
+            saveSection.classList.add('hidden');
+        }
+
+        updateLeaderboardTable();
+        showScreen('game-over-screen');
+    }
+
+    /* ============================= LEADERBOARD ============================= */
+    function getLeaderboard() {
+        return safeParse(localStorage.getItem('officeCat_Leaderboard'), [
+            { name: 'MichiBoss', score: 45 },
+            { name: 'GatoCafé', score: 30 },
+            { name: 'Garfield', score: 20 },
+            { name: 'Tom', score: 12 },
+            { name: 'Pelusa', score: 5 }
+        ]);
+    }
+
+    function updateLeaderboardTable() {
+        const lb = getLeaderboard();
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = '';
+        lb.sort((a,b) => b.score - a.score);
+        lb.slice(0, 5).forEach((entry, idx) => {
+            const tr = document.createElement('tr');
+            if (hasNewPB && entry.score === personalBest) tr.classList.add('current-score');
+            tr.innerHTML = `<td>${idx + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    /* ============================= UI & SCREENS ============================= */
+    function showScreen(screenId) {
+        document.querySelectorAll('.ui-overlay').forEach(el => el.classList.add('hidden'));
+        if (screenId) {
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+        updateCoinBadges();
+    }
+
+    function updateCoinBadges() {
+        document.getElementById('start-coins').innerText = coins;
+        document.getElementById('customize-coins').innerText = coins;
+        document.getElementById('shop-coins').innerText = coins;
+    }
+
+    function initCatSelectionUI() {
+        const container = document.getElementById('cat-selection-container');
+        container.innerHTML = '';
+        Object.keys(CAT_PALETTES).forEach(color => {
+            const div = document.createElement('div');
+            div.className = `cat-option ${color === selectedCatColor ? 'selected' : ''}`;
+            div.dataset.color = color;
+
+            const c = document.createElement('canvas');
+            c.width = 60; c.height = 50;
+            const cctx = c.getContext('2d');
+            drawGenericCat(cctx, 5, 5, 45, 40, CAT_PALETTES[color], false, false, null);
+
+            div.appendChild(c);
+            div.addEventListener('click', () => {
+                document.querySelectorAll('.cat-option').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedCatColor = color;
+            });
+            container.appendChild(div);
+        });
+    }
+
+    function initCustomizeUI() {
         const hatRow = document.getElementById('customize-hat-row');
         hatRow.innerHTML = '';
+
+        // Opción Ninguno
         const noneChip = document.createElement('div');
-        noneChip.className = 'item-chip' + (equippedHat === null ? ' selected' : '');
-        noneChip.innerHTML = '<span class="emoji">🚫</span>Ninguno';
-        noneChip.onclick = function(){ equippedHat = null; saveEquipped(); refreshCustomizeRows(); };
+        noneChip.className = `item-chip ${equippedHat === null ? 'selected' : ''}`;
+        noneChip.innerHTML = `<span class="emoji">🚫</span><div>Ninguno</div>`;
+        noneChip.addEventListener('click', () => {
+            equippedHat = null;
+            saveEquipped();
+            initCustomizeUI();
+        });
         hatRow.appendChild(noneChip);
-        HATS.forEach(function(hat) {
-            const owned = unlockedHats.indexOf(hat.id) !== -1;
+
+        HATS.forEach(hat => {
+            const isUnlocked = unlockedHats.includes(hat.id);
             const chip = document.createElement('div');
-            chip.className = 'item-chip' + (owned ? '' : ' locked') + (equippedHat === hat.id ? ' selected' : '');
-            chip.innerHTML = '<span class="emoji">' + hat.emoji + '</span>' + hat.name + (owned ? '' : '<div class="price">🪙 ' + hat.price + '</div>') + (owned ? '' : '<span class="lock">🔒</span>');
-            chip.onclick = function() {
-                if (owned) { equippedHat = hat.id; saveEquipped(); refreshCustomizeRows(); }
-                else openShop('hats');
-            };
+            chip.className = `item-chip ${!isUnlocked ? 'locked' : ''} ${equippedHat === hat.id ? 'selected' : ''}`;
+            chip.innerHTML = `
+                ${!isUnlocked ? '<span class="lock">🔒</span>' : ''}
+                <span class="emoji">${hat.emoji}</span>
+                <div>${hat.name}</div>
+            `;
+            if (isUnlocked) {
+                chip.addEventListener('click', () => {
+                    equippedHat = hat.id;
+                    saveEquipped();
+                    initCustomizeUI();
+                });
+            }
             hatRow.appendChild(chip);
         });
 
-        // Maps row
         const mapRow = document.getElementById('customize-map-row');
         mapRow.innerHTML = '';
-        MAPS.forEach(function(map) {
-            const owned = unlockedMaps.indexOf(map.id) !== -1;
+        MAPS.forEach(map => {
+            const isUnlocked = unlockedMaps.includes(map.id);
             const chip = document.createElement('div');
-            chip.className = 'item-chip' + (owned ? '' : ' locked') + (selectedMap === map.id ? ' selected' : '');
-            chip.innerHTML = '<span class="emoji">' + map.emoji + '</span>' + map.name + (owned ? '' : '<div class="price">🪙 ' + map.price + '</div>') + (owned ? '' : '<span class="lock">🔒</span>');
-            chip.onclick = function() {
-                if (owned) { selectedMap = map.id; saveSelectedMap(); refreshCustomizeRows(); }
-                else openShop('maps');
-            };
+            chip.className = `item-chip ${!isUnlocked ? 'locked' : ''} ${selectedMap === map.id ? 'selected' : ''}`;
+            chip.innerHTML = `
+                ${!isUnlocked ? '<span class="lock">🔒</span>' : ''}
+                <span class="emoji">${map.emoji}</span>
+                <div>${map.name}</div>
+            `;
+            if (isUnlocked) {
+                chip.addEventListener('click', () => {
+                    selectedMap = map.id;
+                    saveSelectedMap();
+                    initCustomizeUI();
+                });
+            }
             mapRow.appendChild(chip);
         });
-        refreshCoinBadges();
     }
 
-    function buildShopGrids() {
-        const palette = CAT_PALETTES[selectedCatColor];
+    function initShopUI() {
         const hatGrid = document.getElementById('hat-shop-grid');
         hatGrid.innerHTML = '';
-        HATS.forEach(function(hat) {
-            const owned = unlockedHats.indexOf(hat.id) !== -1;
-            const equipped = equippedHat === hat.id;
+        HATS.forEach(hat => {
+            const isUnlocked = unlockedHats.includes(hat.id);
+            const isEquipped = equippedHat === hat.id;
             const card = document.createElement('div');
-            card.className = 'shop-card' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
-            const mini = makeMiniCatCanvas(palette, hat.id);
-            card.appendChild(mini);
-            const nameEl = document.createElement('div'); nameEl.className = 'name'; nameEl.textContent = hat.name; card.appendChild(nameEl);
-            if (owned) {
-                const btn = document.createElement('button'); btn.className = 'btn small';
-                btn.textContent = equipped ? 'Quitar' : 'Equipar';
-                btn.onclick = function(){ equippedHat = equipped ? null : hat.id; saveEquipped(); buildShopGrids(); refreshCustomizeRows(); };
-                card.appendChild(btn);
-            } else {
-                const priceEl = document.createElement('div'); priceEl.className = 'price-tag'; priceEl.textContent = '🪙 ' + hat.price; card.appendChild(priceEl);
-                const btn = document.createElement('button'); btn.className = 'btn small'; btn.textContent = 'Comprar';
-                btn.disabled = coins < hat.price;
-                btn.onclick = function() {
-                    if (coins >= hat.price) {
-                        coins -= hat.price; unlockedHats.push(hat.id); equippedHat = hat.id;
-                        saveCoins(); saveHats(); saveEquipped();
-                        buildShopGrids(); refreshCustomizeRows();
-                    }
-                };
-                card.appendChild(btn);
+            card.className = `shop-card ${isUnlocked ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}`;
+            card.innerHTML = `
+                <div style="font-size:32px;">${hat.emoji}</div>
+                <div class="name">${hat.name}</div>
+                <div class="price-tag">${isUnlocked ? (isEquipped ? 'Equipado' : 'Comprado') : '🪙 ' + hat.price}</div>
+                <button class="btn small" style="width:100%; margin-top:6px;" ${isUnlocked || coins < hat.price ? 'disabled' : ''}>
+                    ${isUnlocked ? 'Poseído' : 'Comprar'}
+                </button>
+            `;
+            const btn = card.querySelector('button');
+            if (!isUnlocked && coins >= hat.price) {
+                btn.addEventListener('click', () => {
+                    coins -= hat.price;
+                    unlockedHats.push(hat.id);
+                    equippedHat = hat.id;
+                    saveCoins(); saveHats(); saveEquipped();
+                    initShopUI(); updateCoinBadges();
+                });
             }
             hatGrid.appendChild(card);
         });
 
         const mapGrid = document.getElementById('map-shop-grid');
         mapGrid.innerHTML = '';
-        MAPS.forEach(function(map) {
-            const owned = unlockedMaps.indexOf(map.id) !== -1;
-            const selected = selectedMap === map.id;
+        MAPS.forEach(map => {
+            const isUnlocked = unlockedMaps.includes(map.id);
+            const isSelected = selectedMap === map.id;
             const card = document.createElement('div');
-            card.className = 'shop-card' + (owned ? ' owned' : '') + (selected ? ' equipped' : '');
-            const emojiBig = document.createElement('div'); emojiBig.style.fontSize = '40px'; emojiBig.style.marginTop = '4px'; emojiBig.textContent = map.emoji;
-            card.appendChild(emojiBig);
-            const nameEl = document.createElement('div'); nameEl.className = 'name'; nameEl.textContent = map.name; card.appendChild(nameEl);
-            if (owned) {
-                const btn = document.createElement('button'); btn.className = 'btn small';
-                btn.textContent = selected ? 'Seleccionado' : 'Elegir';
-                btn.disabled = selected;
-                btn.onclick = function(){ selectedMap = map.id; saveSelectedMap(); buildShopGrids(); refreshCustomizeRows(); };
-                card.appendChild(btn);
-            } else {
-                const priceEl = document.createElement('div'); priceEl.className = 'price-tag'; priceEl.textContent = '🪙 ' + map.price; card.appendChild(priceEl);
-                const btn = document.createElement('button'); btn.className = 'btn small'; btn.textContent = 'Comprar';
-                btn.disabled = coins < map.price;
-                btn.onclick = function() {
-                    if (coins >= map.price) {
-                        coins -= map.price; unlockedMaps.push(map.id); selectedMap = map.id;
-                        saveCoins(); saveMaps(); saveSelectedMap();
-                        buildShopGrids(); refreshCustomizeRows();
-                    }
-                };
-                card.appendChild(btn);
+            card.className = `shop-card ${isUnlocked ? 'owned' : ''} ${isSelected ? 'equipped' : ''}`;
+            card.innerHTML = `
+                <div style="font-size:32px;">${map.emoji}</div>
+                <div class="name">${map.name}</div>
+                <div class="price-tag">${isUnlocked ? (isSelected ? 'Activo' : 'Comprado') : '🪙 ' + map.price}</div>
+                <button class="btn small" style="width:100%; margin-top:6px;" ${isUnlocked || coins < map.price ? 'disabled' : ''}>
+                    ${isUnlocked ? 'Poseído' : 'Comprar'}
+                </button>
+            `;
+            const btn = card.querySelector('button');
+            if (!isUnlocked && coins >= map.price) {
+                btn.addEventListener('click', () => {
+                    coins -= map.price;
+                    unlockedMaps.push(map.id);
+                    selectedMap = map.id;
+                    saveCoins(); saveMaps(); saveSelectedMap();
+                    initShopUI(); updateCoinBadges();
+                });
             }
             mapGrid.appendChild(card);
         });
-        refreshCoinBadges();
     }
 
-    function setShopTab(tab) {
-        shopTab = tab;
-        document.getElementById('tab-hats-btn').classList.toggle('active', tab === 'hats');
-        document.getElementById('tab-maps-btn').classList.toggle('active', tab === 'maps');
-        document.getElementById('hat-shop-grid').classList.toggle('hidden', tab !== 'hats');
-        document.getElementById('map-shop-grid').classList.toggle('hidden', tab !== 'maps');
-    }
-    document.getElementById('tab-hats-btn').onclick = function(){ setShopTab('hats'); };
-    document.getElementById('tab-maps-btn').onclick = function(){ setShopTab('maps'); };
-
-    function openShop(tab) {
-        startScreenEl.classList.add('hidden');
-        customizeScreenEl.classList.add('hidden');
-        gameOverScreenEl.classList.add('hidden');
-        shopScreenEl.classList.remove('hidden');
-        buildShopGrids();
-        setShopTab(tab || 'hats');
-    }
-    function openCustomize() {
-        startScreenEl.classList.add('hidden');
-        gameOverScreenEl.classList.add('hidden');
-        shopScreenEl.classList.add('hidden');
-        customizeScreenEl.classList.remove('hidden');
-        refreshCustomizeRows();
-    }
-    document.getElementById('open-shop-btn').onclick = function(){ openShop('hats'); };
-    document.getElementById('gameover-shop-btn').onclick = function(){ openShop('hats'); };
-    document.getElementById('open-customize-btn').onclick = function(){ openCustomize(); };
-    document.getElementById('customize-back-btn').onclick = function() {
-        customizeScreenEl.classList.add('hidden');
-        startScreenEl.classList.remove('hidden');
-        refreshCoinBadges();
-    };
-    document.getElementById('shop-back-btn').onclick = function() {
-        shopScreenEl.classList.add('hidden');
-        startScreenEl.classList.remove('hidden');
-        refreshCoinBadges();
-    };
-
-    document.getElementById('start-btn').addEventListener('click', startGame);
-    document.getElementById('return-start-btn').addEventListener('click', returnToStart);
-    document.getElementById('save-btn').addEventListener('click', saveScoreAndShowLeaderboard);
-    document.getElementById('player-name-input').addEventListener('input', function() {
-        document.getElementById('save-btn').disabled = this.value.trim().length === 0;
+    /* ============================= LISTENERS ============================= */
+    window.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+        if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') keys.up = true;
+        if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = true;
     });
 
-    /* ============================= GAME FLOW ============================= */
-    function startGame() {
-        startScreenEl.classList.add('hidden');
-        gameOverScreenEl.classList.add('hidden');
-        shopScreenEl.classList.add('hidden');
+    window.addEventListener('keyup', e => {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+        if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') keys.up = false;
+        if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = false;
+    });
 
-        gameState = 'playing';
-        score = 0; lives = 3; currentLevel = 1;
-        objects = []; floaters = []; hitFlash = 0;
+    document.getElementById('start-btn').addEventListener('click', () => {
+        showScreen(null);
+        resetGame();
+        gameState = 'PLAYING';
+    });
 
-        cat.x = W / 2 - cat.width / 2; cat.y = cat.groundY;
-        cat.velX = 0; cat.velY = 0; cat.isJumping = false;
-        cat.powerupTimer = 0; cat.isPoweredUp = false; cat.rotationAngle = 0;
-        cat.squash = 1; cat.jumpBuffer = 0;
-        keys.left = keys.right = keys.up = keys.down = false;
+    document.getElementById('open-customize-btn').addEventListener('click', () => {
+        initCustomizeUI();
+        showScreen('customize-screen');
+    });
 
-        gameRunning = true;
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        gameLoop();
-    }
+    document.getElementById('customize-back-btn').addEventListener('click', () => {
+        showScreen('start-screen');
+    });
 
-    function gameOver() {
-        gameRunning = false; gameState = 'over';
-        const coinsEarned = score;
-        coins += coinsEarned; saveCoins();
+    document.getElementById('open-shop-btn').addEventListener('click', () => {
+        initShopUI();
+        showScreen('shop-screen');
+    });
 
-        document.getElementById('final-score').textContent = score;
-        document.getElementById('coins-earned').textContent = coinsEarned;
-        document.getElementById('total-coins-display').textContent = coins;
+    document.getElementById('gameover-shop-btn').addEventListener('click', () => {
+        initShopUI();
+        showScreen('shop-screen');
+    });
 
-        if (score > personalBest) {
-            personalBest = score;
-            localStorage.setItem('officeCat_PB', personalBest);
-            hasNewPB = true;
-            document.getElementById('save-score-section').classList.remove('hidden');
-            document.getElementById('save-btn').disabled = true;
-            const nameInput = document.getElementById('player-name-input');
-            nameInput.value = localStorage.getItem('officeCat_LastPlayer') || '';
-            document.getElementById('save-btn').disabled = nameInput.value.trim().length === 0;
-        } else {
-            hasNewPB = false;
-            document.getElementById('save-score-section').classList.add('hidden');
-        }
+    document.getElementById('shop-back-btn').addEventListener('click', () => {
+        showScreen('start-screen');
+    });
 
-        document.getElementById('best-score').textContent = personalBest;
-        updateLeaderboardUI();
-        gameOverScreenEl.classList.remove('hidden');
-    }
+    document.getElementById('tab-hats-btn').addEventListener('click', (e) => {
+        document.getElementById('tab-hats-btn').classList.add('active');
+        document.getElementById('tab-maps-btn').classList.remove('active');
+        document.getElementById('hat-shop-grid').classList.remove('hidden');
+        document.getElementById('map-shop-grid').classList.add('hidden');
+    });
 
-    function returnToStart() {
-        gameOverScreenEl.classList.add('hidden');
-        shopScreenEl.classList.add('hidden');
-        customizeScreenEl.classList.add('hidden');
-        startScreenEl.classList.remove('hidden');
-        gameState = 'start';
-        refreshCoinBadges();
-        drawBackground(selectedMap, 0, Date.now());
-    }
+    document.getElementById('tab-maps-btn').addEventListener('click', (e) => {
+        document.getElementById('tab-maps-btn').classList.add('active');
+        document.getElementById('tab-hats-btn').classList.remove('active');
+        document.getElementById('map-shop-grid').classList.remove('hidden');
+        document.getElementById('hat-shop-grid').classList.add('hidden');
+    });
 
-    function getLeaderboard() {
-        const lb = localStorage.getItem('officeCat_Leaderboard');
-        return lb ? JSON.parse(lb) : [];
-    }
+    document.getElementById('return-start-btn').addEventListener('click', () => {
+        showScreen('start-screen');
+        gameState = 'START';
+    });
 
-    function updateLeaderboardUI() {
-        const lb = getLeaderboard();
-        const tbody = document.getElementById('leaderboard-body');
-        tbody.innerHTML = '';
-        if (lb.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#888;">Nadie ha trabajado duro aún...</td></tr>';
-            return;
-        }
-        lb.slice(0, 5).forEach(function(entry, index) {
-            const tr = document.createElement('tr');
-            if (hasNewPB && entry.score === score && entry.name === localStorage.getItem('officeCat_LastPlayer')) tr.classList.add('current-score');
-            tr.innerHTML = '<td>' + (index + 1) + '</td><td>' + entry.name + '</td><td>' + entry.score + '</td>';
-            tbody.appendChild(tr);
-        });
-    }
-
-    function saveScoreAndShowLeaderboard() {
-        const nameInput = document.getElementById('player-name-input').value.trim() || 'Anónimo';
-        localStorage.setItem('officeCat_LastPlayer', nameInput);
+    document.getElementById('save-btn').addEventListener('click', () => {
+        const input = document.getElementById('player-name-input');
+        const name = input.value.trim() || 'Michi';
         let lb = getLeaderboard();
-        lb.push({ name: nameInput, score: score, date: new Date().toISOString() });
-        lb.sort(function(a, b){ return b.score - a.score; });
-        lb = lb.slice(0, 10);
-        localStorage.setItem('officeCat_Leaderboard', JSON.stringify(lb));
+        lb.push({ name: name, score: personalBest });
+        lb.sort((a,b) => b.score - a.score);
+        localStorage.setItem('officeCat_Leaderboard', JSON.stringify(lb.slice(0, 10)));
         document.getElementById('save-score-section').classList.add('hidden');
-        updateLeaderboardUI();
-    }
-
-    /* ============================= UPDATE / PHYSICS ============================= */
-    function addFloater(x, y, text, color) {
-        floaters.push({ x: x, y: y, text: text, color: color, life: 45 });
-    }
-
-    function update() {
-        if (!gameRunning) return;
-
-        const speedMult = cat.isPoweredUp ? 1.55 : 1;
-        const maxSpd = cat.maxSpeed * speedMult;
-
-        if (keys.left && !keys.right) { cat.velX -= cat.accel; cat.facingLeft = true; }
-        else if (keys.right && !keys.left) { cat.velX += cat.accel; cat.facingLeft = false; }
-        else { cat.velX *= cat.friction; if (Math.abs(cat.velX) < 0.15) cat.velX = 0; }
-        cat.velX = Math.max(-maxSpd, Math.min(maxSpd, cat.velX));
-
-        cat.x += cat.velX;
-        if (cat.x < 0) { cat.x = 0; cat.velX = 0; }
-        if (cat.x > W - cat.width) { cat.x = W - cat.width; cat.velX = 0; }
-
-        const currentGravity = (keys.down && cat.velY > 0) ? cat.fastFallGravity : cat.gravity;
-
-        if (cat.jumpBuffer > 0) cat.jumpBuffer--;
-        if (cat.jumpBuffer > 0 && !cat.isJumping) {
-            cat.velY = cat.jumpStrength;
-            cat.isJumping = true;
-            cat.jumpBuffer = 0;
-            cat.squash = 0.78;
-        }
-
-        cat.velY += currentGravity;
-        cat.y += cat.velY;
-
-        if (cat.y >= cat.groundY) {
-            if (cat.isJumping) cat.squash = 0.82;
-            cat.y = cat.groundY; cat.velY = 0; cat.isJumping = false;
-        }
-        cat.squash += (1 - cat.squash) * 0.2;
-
-        if (cat.isPoweredUp) {
-            cat.powerupTimer--;
-            cat.rotationAngle += 0.2;
-            if (cat.powerupTimer <= 0) { cat.isPoweredUp = false; cat.rotationAngle = 0; }
-        }
-
-        if (hitFlash > 0) hitFlash--;
-
-        spawnTimer++;
-        const spawnRate = Math.max(14, 48 - Math.floor(score / 10) * 3);
-        if (spawnTimer > spawnRate) {
-            spawnTimer = 0;
-            const roll = Math.random();
-            const objX = Math.random() * (W - 60) + 30;
-            const baseSpeed = (2.6 + Math.random() * 2) * (1 + score * 0.005);
-
-            if (roll < 0.62) {
-                objects.push({ type: 'coffee', x: objX, y: -30, speed: baseSpeed, radius: 12 });
-            } else if (roll < 0.90) {
-                if (score >= 8) objects.push({ type: 'anvil', x: objX, y: -30, speed: baseSpeed * 1.5, radius: 18 });
-                else objects.push({ type: 'coffee', x: objX, y: -30, speed: baseSpeed, radius: 12 });
-            } else {
-                if (!cat.isPoweredUp && score > 5) objects.push({ type: 'star', x: objX, y: -30, speed: baseSpeed * 0.8, radius: 15 });
-                else objects.push({ type: 'coffee', x: objX, y: -30, speed: baseSpeed, radius: 12 });
-            }
-        }
-
-        currentLevel = 1 + Math.floor(score / 25);
-
-        const hb = { x: cat.x + 10, y: cat.y, width: cat.width - 20, height: cat.height };
-        const catCenterX = cat.x + cat.width / 2;
-        const catCenterY = cat.y + cat.height / 2;
-
-        for (let i = objects.length - 1; i >= 0; i--) {
-            const obj = objects[i];
-            obj.y += obj.speed;
-
-            const distX = Math.abs(obj.x - catCenterX);
-            const distY = Math.abs(obj.y - catCenterY);
-            const collision = distX < (hb.width / 2 + obj.radius) && distY < (hb.height / 2 + obj.radius);
-
-            if (collision) {
-                if (obj.type === 'coffee') { score++; addFloater(obj.x, obj.y, '+1 ☕', '#ffd76a'); }
-                else if (obj.type === 'anvil') {
-                    if (!cat.isPoweredUp) {
-                        lives--; hitFlash = 12; cat.squash = 1.15;
-                        addFloater(obj.x, obj.y, '-1 ❤️', '#e63946');
-                        if (lives <= 0) gameOver();
-                    }
-                } else if (obj.type === 'star') {
-                    cat.isPoweredUp = true; cat.powerupTimer = cat.powerupDuration;
-                    addFloater(obj.x, obj.y, '✨ INVENCIBLE', '#ffe000');
-                }
-                objects.splice(i, 1);
-                continue;
-            }
-
-            if (obj.y > H - 20) {
-                if (obj.type === 'coffee') {
-                    lives--; addFloater(obj.x, H - 40, '☕💔', '#e63946');
-                    if (lives <= 0) gameOver();
-                }
-                objects.splice(i, 1);
-            }
-        }
-
-        for (let i = floaters.length - 1; i >= 0; i--) {
-            floaters[i].y -= 1.2; floaters[i].life--;
-            if (floaters[i].life <= 0) floaters.splice(i, 1);
-        }
-    }
-
-    /* ============================= RENDER ============================= */
-    function drawUI() {
-        ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.fillRect(8, 8, W - 16, 40);
-        ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.strokeRect(8, 8, W - 16, 40);
-
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 19px Segoe UI, sans-serif'; ctx.textBaseline = 'middle';
-        ctx.fillText('☕ ' + score, 20, 29);
-
-        ctx.fillStyle = '#ffd76a'; ctx.font = 'bold 15px Segoe UI';
-        ctx.fillText('🪙 ' + (coins + score), 90, 29);
-
-        ctx.fillStyle = '#9fd8ff'; ctx.font = '15px Segoe UI';
-        ctx.fillText('Nivel ' + currentLevel, 190, 29);
-
-        if (cat.isPoweredUp) {
-            const barWidth = 100;
-            const currentBarWidth = (cat.powerupTimer / cat.powerupDuration) * barWidth;
-            ctx.fillStyle = 'rgba(255,220,0,0.25)'; ctx.fillRect(290, 15, barWidth, 14);
-            ctx.fillStyle = '#ffe000'; ctx.fillRect(290, 15, currentBarWidth, 14);
-            ctx.fillStyle = '#111'; ctx.font = 'bold 11px Segoe UI'; ctx.fillText('INVENCIBLE', 298, 22);
-        }
-
-        ctx.font = '18px Segoe UI';
-        let hearts = '';
-        for (let i = 0; i < lives; i++) hearts += '❤️';
-        ctx.textAlign = 'right';
-        ctx.fillText(hearts || '💔', W - 20, 29);
-        ctx.textAlign = 'left';
-    }
-
-    function drawFloaters() {
-        ctx.font = 'bold 14px Segoe UI'; ctx.textAlign = 'center';
-        floaters.forEach(function(f) {
-            ctx.globalAlpha = Math.max(0, f.life / 45);
-            ctx.fillStyle = f.color;
-            ctx.fillText(f.text, f.x, f.y);
-        });
-        ctx.globalAlpha = 1; ctx.textAlign = 'left';
-    }
-
-    function gameLoop() {
-        if (!gameRunning) return;
-        const time = Date.now();
-
-        ctx.clearRect(0, 0, W, H);
-        drawBackground(selectedMap, score, time);
-
-        // sombra del gato en el suelo
-        const shadowScale = 1 - Math.min(0.5, Math.abs(cat.y - cat.groundY) / 200);
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.beginPath();
-        ctx.ellipse(cat.x + cat.width / 2, H - 22, 22 * shadowScale, 6 * shadowScale, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        objects.forEach(function(obj) {
-            if (obj.type === 'coffee') drawCoffee(obj.x, obj.y, time);
-            else if (obj.type === 'anvil') drawAnvil(obj.x, obj.y);
-            else if (obj.type === 'star') drawStar(obj.x, obj.y, time);
-        });
-
-        if (cat.isPoweredUp) {
-            const hue = (time % 1000) / 1000 * 360;
-            ctx.shadowColor = 'hsla(' + hue + ', 100%, 70%, 0.8)';
-            ctx.shadowBlur = 20;
-        }
-        drawGenericCat(ctx, cat.x, cat.y, cat.width, cat.height, CAT_PALETTES[selectedCatColor], cat.facingLeft, cat.isJumping, equippedHat, cat.rotationAngle, 1, cat.squash);
-        ctx.shadowBlur = 0;
-
-        drawFloaters();
-        drawUI();
-
-        if (hitFlash > 0) {
-            ctx.fillStyle = 'rgba(230,57,70,' + (hitFlash / 12 * 0.35) + ')';
-            ctx.fillRect(0, 0, W, H);
-        }
-
-        update();
-
-        if (gameRunning) animationFrameId = requestAnimationFrame(gameLoop);
-    }
+        updateLeaderboardTable();
+    });
 
     /* ============================= INIT ============================= */
-    refreshCoinBadges();
-    drawBackground(selectedMap, 0, Date.now());
+    initCatIcons();
+    initCatSelectionUI();
+    showScreen('start-screen');
+    requestAnimationFrame(gameLoop);
+
 })();
 </script>
 </body>
