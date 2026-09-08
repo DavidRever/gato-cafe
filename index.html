@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Cat: Coffee Rush</title>
+    <title>Office Cat: Coffee Rush & Stars</title>
     <style>
         body {
             margin: 0;
@@ -181,10 +181,10 @@
 </head>
 <body>
 
-    <h1>Office Cat: Coffee Rush ☕✨</h1>
+    <h1>Office Cat: Coffee Rush & Stars ☕✨</h1>
     <p class="instructions">
         Mover: Flechas ⬅️ ➡️ (o A,D) | Saltar: Flecha ⬆️ (o Espacio) | Bajar Rápido: Flecha ⬇️<br>
-        Recolecta Café ☕ y Estrellas ✨. Evita Yunques 🔨.
+        Recolecta Café ☕ y Estrellas ✨. Evita Yunques 🔨 y ¡no dejes caer el café!
     </p>
 
     <div id="game-container">
@@ -192,8 +192,8 @@
         
         <!-- Pantalla de Inicio / Selección de Personaje -->
         <div id="start-screen" class="ui-overlay">
-            <h2 style="font-size: 28px; margin-bottom: 5px; color: #4cc9f0;">¡Bienvenido a la Oficina Nocturna!</h2>
-            <p style="margin-top: 0; color: #aaa;">Primero, elige a tu gato:</p>
+            <h2 style="font-size: 28px; margin-bottom: 5px; color: #4cc9f0;">¡Bienvenido a la Oficina!</h2>
+            <p style="margin-top: 0; color: #aaa;">Elige a tu gato para comenzar la jornada:</p>
             
             <div class="cat-selection-container">
                 <div class="cat-option selected" data-color="orange" title="Gato Naranja (Clásico)">
@@ -255,7 +255,6 @@
             grey: { body: '#888888', markings: '#666666', eye: '#ffee55', nose: '#ffb3c1' }
         };
 
-        // Función reutilizable para dibujar un gato en un contexto dado
         function drawGenericCat(ctx, x, y, width, height, palette, facingLeft, isJumping, angle = 0, opacity = 1) {
             ctx.save();
             ctx.globalAlpha = opacity;
@@ -263,7 +262,6 @@
             if (angle !== 0) ctx.rotate(angle);
             if (facingLeft) ctx.scale(-1, 1);
 
-            // Ajuste leve de posición si salta
             let jumpOffset = isJumping ? -3 : 0;
 
             // Cuerpo
@@ -272,7 +270,7 @@
             ctx.ellipse(0, 5 + jumpOffset, 20, 15, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Marcas traseras (leves)
+            // Marcas traseras
             ctx.fillStyle = palette.markings;
             ctx.beginPath();
             ctx.ellipse(-10, 5 + jumpOffset, 7, 10, Math.PI/4, 0, Math.PI * 2);
@@ -312,67 +310,55 @@
             ctx.restore();
         }
 
-        // --- INICIALIZACIÓN DE ICONOS DE SELECCIÓN ---
         function initCatIcons() {
             Object.keys(CAT_PALETTES).forEach(color => {
                 const canvas = document.getElementById('icon' + color.charAt(0).toUpperCase() + color.slice(1));
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                // Dibujar centrado y un poco más grande en el icono
                 drawGenericCat(ctx, 5, 10, 50, 45, CAT_PALETTES[color], false, false);
             });
         }
         initCatIcons();
 
-
         // --- LÓGICA DEL JUEGO ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Estado del juego
         let gameRunning = false;
-        let gameState = 'start'; // 'start', 'playing', 'over'
+        let gameState = 'start';
         let score = 0;
         let lives = 3;
         let currentLevel = 1;
         let animationFrameId;
         
-        // Récord personal (localstorage)
         let personalBest = parseInt(localStorage.getItem('officeCat_PB')) || 0;
         let hasNewPB = false;
 
-        // Selección de Gato
         let selectedCatColor = 'orange';
 
-        // Teclas
         const keys = { left: false, right: false, up: false, down: false };
 
-        // Jugador (Gato con físicas de salto)
         const cat = {
             x: canvas.width / 2 - 25,
             y: canvas.height - 75,
             width: 50, height: 45,
             speed: 8,
             facingLeft: false,
-            // Físicas de salto
             velY: 0,
             isJumping: false,
-            jumpStrength: -18, // Fuerza inicial del salto
+            jumpStrength: -18,
             gravity: 0.8,
-            fastFallGravity: 2.0, // Gravedad al presionar abajo
+            fastFallGravity: 2.0,
             groundY: canvas.height - 75,
-            // Estado Estrella Poder
-            powerupTimer: 0, // En frames
+            powerupTimer: 0,
             isPoweredUp: false,
-            powerupDuration: 600, // 10 segundos a 60fps
+            powerupDuration: 600,
             rotationAngle: 0
         };
 
-        // Objetos (Café, Yunques, Estrellas)
         let objects = [];
         let spawnTimer = 0;
 
-        // --- SISTEMA DE LEADERBOARD LOCAL (LOCALSTORAGE) ---
         function getLeaderboard() {
             let lb = localStorage.getItem('officeCat_Leaderboard');
             return lb ? JSON.parse(lb) : [];
@@ -388,12 +374,9 @@
                 return;
             }
 
-            // Tomar top 5
             const top5 = lb.slice(0, 5);
-            
             top5.forEach((entry, index) => {
                 const tr = document.createElement('tr');
-                // Resaltar si es la puntuación actual que acabamos de guardar
                 if (hasNewPB && entry.score === score && entry.name === localStorage.getItem('officeCat_LastPlayer')) {
                     tr.classList.add('current-score');
                 }
@@ -402,8 +385,6 @@
             });
         }
 
-
-        // --- ESCUCHADORES DE EVENTOS ---
         window.addEventListener('keydown', (e) => {
             if (gameState !== 'playing') return;
             if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
@@ -419,7 +400,6 @@
             if (e.key === 'ArrowDown' || e.key === 's') keys.down = false;
         });
 
-        // UI: Selección de gato
         const catOptions = document.querySelectorAll('.cat-option');
         catOptions.forEach(opt => {
             opt.addEventListener('click', () => {
@@ -431,13 +411,10 @@
 
         document.getElementById('start-btn').addEventListener('click', startGame);
 
-        // UI: Inputs Leaderboard
         document.getElementById('player-name-input').addEventListener('input', function() {
             document.getElementById('save-btn').disabled = this.value.trim().length === 0;
         });
 
-
-        // --- FUNCIONES DE FLUJO DE JUEGO ---
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
@@ -448,7 +425,6 @@
             currentLevel = 1;
             objects = [];
             
-            // Reiniciar Jugador
             cat.x = canvas.width / 2 - cat.width / 2;
             cat.y = cat.groundY;
             cat.velY = 0;
@@ -468,14 +444,12 @@
             
             document.getElementById('final-score').innerText = score;
             
-            // Comprobar PB (Personal Best)
             if (score > personalBest) {
                 personalBest = score;
                 localStorage.setItem('officeCat_PB', personalBest);
                 hasNewPB = true;
-                // Mostrar sección de guardar
                 document.getElementById('save-score-section').classList.remove('hidden');
-                document.getElementById('save-btn').disabled = true; // Empieza deshabilitado hasta que escriban
+                document.getElementById('save-btn').disabled = true;
                 document.getElementById('player-name-input').value = localStorage.getItem('officeCat_LastPlayer') || '';
                 if (document.getElementById('player-name-input').value) document.getElementById('save-btn').disabled = false;
             } else {
@@ -493,138 +467,190 @@
             document.getElementById('game-over-screen').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
             gameState = 'start';
-            // Dibujar el fondo base
-            drawOfficeBackground();
+            drawOfficeBackground(0);
         }
 
         function saveScoreAndShowLeaderboard() {
             const nameInput = document.getElementById('player-name-input').value.trim() || 'Anónimo';
-            localStorage.setItem('officeCat_LastPlayer', nameInput); // Recordar último nombre
+            localStorage.setItem('officeCat_LastPlayer', nameInput);
 
             let lb = getLeaderboard();
             lb.push({ name: nameInput, score: score, date: new Date().toISOString() });
-            // Ordenar desc, max 10
             lb.sort((a, b) => b.score - a.score);
             lb = lb.slice(0, 10);
             
             localStorage.setItem('officeCat_Leaderboard', JSON.stringify(lb));
             
-            // Ocultar input, actualizar tabla resaltando el nuevo record
             document.getElementById('save-score-section').classList.add('hidden');
             updateLeaderboardUI();
         }
 
+        // --- DIBUJO DEL FONDO DE OFICINA (DÍA O NOCHE) ---
+        function drawOfficeBackground(currentScore) {
+            const isNight = currentScore >= 50;
 
-        // --- DIBUJO ---
-
-        // DIBUJO DEL FONDO DE OFICINA (Basado en la foto nocturna)
-        function drawOfficeBackground() {
-            // Fondo General: Paredes y Techo oscuros (Noche)
-            ctx.fillStyle = '#111113'; // Muy oscuro
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Suelo (Oscuro pero diferente, como la alfombra oscura de la foto)
-            ctx.fillStyle = '#1a1a1c';
-            ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
-
-            // Ventanales del fondo (Luz exterior de ciudad nocturna y reflejos)
-            const windowStartX = 30;
-            const windowWidth = canvas.width - 60;
-            const windowHeight = 220;
-            const windowTop = 100;
-
-            // Marco del ventanal oscuro
-            ctx.fillStyle = '#080808';
-            ctx.fillRect(windowStartX - 5, windowTop - 5, windowWidth + 10, windowHeight + 10);
-
-            // Cristal / Vista Exterior Nocturna
-            ctx.fillStyle = '#10121a'; // Tono azulado muy oscuro
-            ctx.fillRect(windowStartX, windowTop, windowWidth, windowHeight);
-            
-            // Luces de la ciudad lejanas (puntos sutiles)
-            for(let i=0; i<30; i++) {
-                let lx = windowStartX + Math.random() * windowWidth;
-                let ly = windowTop + Math.random() * windowHeight * 0.8;
-                let size = Math.random() * 2;
-                ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,200,0.3)' : 'rgba(150,200,255,0.2)';
-                ctx.fillRect(lx, ly, size, size);
-            }
-
-            // Marcos verticales de las ventanas
-            ctx.fillStyle = '#1a1a1a';
-            const numPanels = 4;
-            const panelWidth = windowWidth / numPanels;
-            for(let i=1; i<numPanels; i++) {
-                ctx.fillRect(windowStartX + panelWidth * i - 3, windowTop, 6, windowHeight);
-            }
-
-            // Techo: Tuberías y Luces lineales (Referencia foto)
-            ctx.fillStyle = '#1a1a1a'; // Tuberías
-            ctx.fillRect(0, 30, canvas.width, 8); // Tubería principal
-            ctx.fillRect(150, 0, 6, 40); // Bajante
-            ctx.fillRect(550, 0, 6, 40);
-
-            // Luces lineales LED encendidas ( sutil bloom )
-            ctx.shadowColor = 'rgba(230, 240, 255, 0.4)';
-            ctx.shadowBlur = 10;
-            ctx.fillStyle = '#e0e8ff';
-            ctx.fillRect(100, 25, 200, 4); 
-            ctx.fillRect(500, 25, 200, 4);
-            ctx.shadowBlur = 0; // Reset shadow
-
-            // Banderines colgando (detalle simpático de la foto)
-            ctx.fillStyle = '#ddd'; ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
-            for(let i=0; i<6; i++) {
-                let bx = 300 + i * 40;
-                let by = 50;
-                ctx.beginPath();
-                ctx.moveTo(bx, by); ctx.lineTo(bx + 15, by + 20); ctx.lineTo(bx + 30, by);
-                ctx.closePath(); ctx.fill(); ctx.stroke();
-            }
-
-            // Estaciones de Trabajo (Mesas y Monitores, oscuro)
-            const desks = [20, 280, 540];
-            const deskTopY = canvas.height - 120;
-            desks.forEach(dx => {
-                // Mesa (madera clara en la foto, pero oscurecida por la noche)
-                ctx.fillStyle = '#4a3a2e'; // Tono madera oscura
-                ctx.fillRect(dx, deskTopY, 240, 90);
+            if (!isNight) {
+                // --- MODO DÍA ---
+                ctx.fillStyle = '#e5e9f0'; // Paredes claras de oficina
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Grosor mesa
-                ctx.fillStyle = '#3a2d24';
-                ctx.fillRect(dx, deskTopY + 10, 240, 80);
+                // Suelo de alfombra gris de oficina
+                ctx.fillStyle = '#4c566a';
+                ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
 
-                // Monitores apagados o en reposo (Referencia foto)
-                ctx.fillStyle = '#080808'; // Carcasa
-                ctx.fillRect(dx + 20, deskTopY - 70, 80, 60); 
-                ctx.fillRect(dx + 120, deskTopY - 60, 60, 50);
+                // Ventanales del fondo con Edificio al frente (Luz de Día)
+                const windowStartX = 30;
+                const windowWidth = canvas.width - 60;
+                const windowHeight = 220;
+                const windowTop = 100;
 
-                ctx.fillStyle = '#111'; // Soporte monitor
-                ctx.fillRect(dx + 55, deskTopY - 10, 10, 10); ctx.fillRect(dx + 40, deskTopY, 40, 3);
-                ctx.fillRect(dx + 145, deskTopY - 10, 8, 10); ctx.fillRect(dx + 135, deskTopY, 28, 3);
+                // Marco exterior de ventana
+                ctx.fillStyle = '#2e3440';
+                ctx.fillRect(windowStartX - 5, windowTop - 5, windowWidth + 10, windowHeight + 10);
 
-                // Un monitor con un salvapantallas sutil (azul sutil de la foto)
-                if(dx === desks[0]) {
-                    ctx.fillStyle = '#0a101f';
-                    ctx.fillRect(dx + 23, deskTopY - 67, 74, 54);
-                    ctx.fillStyle = 'rgba(100, 150, 255, 0.1)'; ctx.fillRect(dx+30, deskTopY-60, 60, 4); // Reflejo
+                // Cielo claro de día
+                ctx.fillStyle = '#81a1c1';
+                ctx.fillRect(windowStartX, windowTop, windowWidth, windowHeight);
+
+                // Edificio Moderno al Frente (Vista por la ventana)
+                ctx.fillStyle = '#d8dee9'; // Fachada del edificio
+                ctx.fillRect(windowStartX + 40, windowTop + 10, windowWidth - 80, windowHeight - 10);
+
+                // Ventanas acristaladas azuladas del edificio de al frente
+                ctx.fillStyle = '#5e81ac';
+                for (let r = 0; r < 5; r++) {
+                    for (let c = 0; c < 12; c++) {
+                        ctx.fillRect(windowStartX + 60 + c * 50, windowTop + 25 + r * 35, 38, 22);
+                    }
                 }
-            });
+
+                // Paneles/Marcos de la ventana de la oficina
+                ctx.fillStyle = '#3b4252';
+                const panelWidth = windowWidth / 4;
+                for (let i = 1; i < 4; i++) {
+                    ctx.fillRect(windowStartX + panelWidth * i - 3, windowTop, 6, windowHeight);
+                }
+
+                // Techo y Tuberías de diseño industrial
+                ctx.fillStyle = '#3b4252';
+                ctx.fillRect(0, 30, canvas.width, 8);
+                ctx.fillRect(150, 0, 6, 40);
+                ctx.fillRect(550, 0, 6, 40);
+
+                // Banderines decorativos en el techo
+                ctx.fillStyle = '#eceff4'; ctx.strokeStyle = '#d8dee9'; ctx.lineWidth = 1;
+                for (let i = 0; i < 6; i++) {
+                    let bx = 300 + i * 40;
+                    let by = 50;
+                    ctx.beginPath();
+                    ctx.moveTo(bx, by); ctx.lineTo(bx + 15, by + 20); ctx.lineTo(bx + 30, by);
+                    ctx.closePath(); ctx.fill(); ctx.stroke();
+                }
+
+                // Escritorios de oficina
+                const desks = [20, 280, 540];
+                const deskTopY = canvas.height - 120;
+                desks.forEach(dx => {
+                    ctx.fillStyle = '#d08770'; // Madera clara
+                    ctx.fillRect(dx, deskTopY, 240, 90);
+                    ctx.fillStyle = '#bf616a';
+                    ctx.fillRect(dx, deskTopY + 10, 240, 80);
+
+                    // Monitores encendidos durante el día
+                    ctx.fillStyle = '#2e3440';
+                    ctx.fillRect(dx + 20, deskTopY - 70, 80, 60);
+                    ctx.fillRect(dx + 120, deskTopY - 60, 60, 50);
+
+                    ctx.fillStyle = '#88c0d0'; // Pantalla activa
+                    ctx.fillRect(dx + 23, deskTopY - 67, 74, 54);
+                    ctx.fillRect(dx + 123, deskTopY - 57, 54, 44);
+
+                    ctx.fillStyle = '#4c566a'; // Soportes
+                    ctx.fillRect(dx + 55, deskTopY - 10, 10, 10); ctx.fillRect(dx + 40, deskTopY, 40, 3);
+                    ctx.fillRect(dx + 145, deskTopY - 10, 8, 10); ctx.fillRect(dx + 135, deskTopY, 28, 3);
+                });
+
+            } else {
+                // --- MODO NOCHE (A partir de 50 Puntos) ---
+                ctx.fillStyle = '#111113';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#1a1a1c';
+                ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+
+                const windowStartX = 30;
+                const windowWidth = canvas.width - 60;
+                const windowHeight = 220;
+                const windowTop = 100;
+
+                ctx.fillStyle = '#080808';
+                ctx.fillRect(windowStartX - 5, windowTop - 5, windowWidth + 10, windowHeight + 10);
+
+                ctx.fillStyle = '#10121a';
+                ctx.fillRect(windowStartX, windowTop, windowWidth, windowHeight);
+                
+                // Luces de la ciudad nocturna
+                for(let i=0; i<35; i++) {
+                    let lx = windowStartX + (i * 20) % windowWidth;
+                    let ly = windowTop + (i * 15) % (windowHeight * 0.8);
+                    ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,200,0.4)' : 'rgba(150,200,255,0.3)';
+                    ctx.fillRect(lx, ly, 3, 3);
+                }
+
+                ctx.fillStyle = '#1a1a1a';
+                const panelWidth = windowWidth / 4;
+                for(let i=1; i<4; i++) {
+                    ctx.fillRect(windowStartX + panelWidth * i - 3, windowTop, 6, windowHeight);
+                }
+
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(0, 30, canvas.width, 8);
+                ctx.fillRect(150, 0, 6, 40);
+                ctx.fillRect(550, 0, 6, 40);
+
+                // Luces LED Encendidas
+                ctx.shadowColor = 'rgba(230, 240, 255, 0.4)';
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = '#e0e8ff';
+                ctx.fillRect(100, 25, 200, 4); 
+                ctx.fillRect(500, 25, 200, 4);
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = '#ddd'; ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
+                for(let i=0; i<6; i++) {
+                    let bx = 300 + i * 40;
+                    let by = 50;
+                    ctx.beginPath();
+                    ctx.moveTo(bx, by); ctx.lineTo(bx + 15, by + 20); ctx.lineTo(bx + 30, by);
+                    ctx.closePath(); ctx.fill(); ctx.stroke();
+                }
+
+                const desks = [20, 280, 540];
+                const deskTopY = canvas.height - 120;
+                desks.forEach(dx => {
+                    ctx.fillStyle = '#4a3a2e';
+                    ctx.fillRect(dx, deskTopY, 240, 90);
+                    ctx.fillStyle = '#3a2d24';
+                    ctx.fillRect(dx, deskTopY + 10, 240, 80);
+
+                    ctx.fillStyle = '#080808';
+                    ctx.fillRect(dx + 20, deskTopY - 70, 80, 60); 
+                    ctx.fillRect(dx + 120, deskTopY - 60, 60, 50);
+
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(dx + 55, deskTopY - 10, 10, 10); ctx.fillRect(dx + 40, deskTopY, 40, 3);
+                    ctx.fillRect(dx + 145, deskTopY - 10, 8, 10); ctx.fillRect(dx + 135, deskTopY, 28, 3);
+                });
+            }
         }
 
-        // DIBUJO DE OBJETOS CAYENDO
-
-        // TAZA DE CAFÉ (Como antes, un poco más pequeña y sutil)
+        // DIBUJO DE OBJETOS
         function drawCoffee(ctx, x, y, time) {
             ctx.save(); ctx.translate(x, y);
-            // Taza
             ctx.fillStyle = '#f0f0f0'; ctx.fillRect(-8, -10, 16, 20);
-            // Asa
             ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 2.5;
             ctx.beginPath(); ctx.arc(8, -1, 5, -Math.PI/2, Math.PI/2); ctx.stroke();
-            // Café líquido
             ctx.fillStyle = '#6f4e37'; ctx.fillRect(-6, -8, 12, 3);
-            // Humo sutil
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'; ctx.lineWidth = 1;
             let smokeTime = time * 0.005;
             ctx.beginPath();
@@ -634,32 +660,23 @@
             ctx.restore();
         }
 
-        // YUNQUE (Nuevo Obstáculo)
         function drawAnvil(ctx, x, y) {
             ctx.save(); ctx.translate(x, y);
             ctx.fillStyle = '#333'; ctx.strokeStyle = '#111'; ctx.lineWidth = 1.5;
-            // Base
             ctx.beginPath(); ctx.moveTo(-18, 12); ctx.lineTo(18, 12); ctx.lineTo(12, 2); ctx.lineTo(-12, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
-            // Cuerpo medio
             ctx.fillRect(-8, -8, 16, 10); ctx.strokeRect(-8, -8, 16, 10);
-            // Parte Superior
             ctx.beginPath(); ctx.moveTo(-22, -18); ctx.lineTo(15, -18); ctx.quadraticCurveTo(25, -8, 15, 2); ctx.lineTo(-22, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
-            // Agujero
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-10, -8, 2.5, 0, Math.PI*2); ctx.fill();
             ctx.restore();
         }
 
-        // ESTRELLA DE PODER (Nueva)
         function drawStar(ctx, x, y, time) {
             ctx.save(); ctx.translate(x, y);
-            // Rotación sutil y oscilación de tamaño
             ctx.rotate(time * 0.002);
             let scale = 1 + Math.sin(time * 0.01) * 0.1;
             ctx.scale(scale, scale);
 
             ctx.fillStyle = '#ffe000'; ctx.strokeStyle = '#ffb000'; ctx.lineWidth = 2;
-            
-            // Efecto brillo sutil exterior
             ctx.shadowColor = 'rgba(255, 230, 0, 0.6)'; ctx.shadowBlur = 10;
 
             const spikes = 5; const outerRadius = 16; const innerRadius = 7;
@@ -671,19 +688,15 @@
                 ctx.lineTo(Math.cos(rot)*innerRadius, Math.sin(rot)*innerRadius); rot+=step;
             }
             ctx.lineTo(0, -outerRadius); ctx.closePath(); ctx.fill(); ctx.stroke();
-            
-            ctx.shadowBlur = 0; // Reset
+            ctx.shadowBlur = 0;
             ctx.restore();
         }
 
-
-        // --- ACTUALIZACIÓN DE LÓGICA DE JUEGO (PHYSICS & MECHANICS) ---
-
+        // --- ACTUALIZACIÓN Y FÍSICAS ---
         function update() {
             if (!gameRunning) return;
             const time = Date.now();
 
-            // 1. Movimiento Horizontal del Gato
             let currentSpeed = cat.isPoweredUp ? cat.speed * 1.8 : cat.speed;
             
             if (keys.left && cat.x > 0) {
@@ -693,42 +706,32 @@
                 cat.x += currentSpeed; cat.facingLeft = false;
             }
 
-            // 2. Físicas de Salto y Gravedad
-            
-            // Decidir gravedad (normal o caída rápida)
             let currentGravity = (keys.down && cat.velY > 0) ? cat.fastFallGravity : cat.gravity;
 
-            // Saltar (si está en el suelo y presiona arriba)
             if (keys.up && !cat.isJumping) {
                 cat.velY = cat.jumpStrength;
                 cat.isJumping = true;
             }
 
-            // Aplicar gravedad
             cat.velY += currentGravity;
             cat.y += cat.velY;
 
-            // Colisión con el suelo
             if (cat.y >= cat.groundY) {
                 cat.y = cat.groundY;
                 cat.velY = 0;
                 cat.isJumping = false;
             }
 
-            // 3. Temporizador del Poder de Estrella
             if (cat.isPoweredUp) {
                 cat.powerupTimer--;
-                cat.rotationAngle += 0.2; // Dar vueltas
+                cat.rotationAngle += 0.2;
                 if (cat.powerupTimer <= 0) {
                     cat.isPoweredUp = false;
                     cat.rotationAngle = 0;
                 }
             }
 
-            // 4. Generación de objetos (Café, Yunques, Estrellas)
             spawnTimer++;
-            
-            // Frecuencia base de spawn aumenta sutilmente con el score
             let spawnRate = Math.max(15, 50 - Math.floor(score/10) * 3);
 
             if (spawnTimer > spawnRate) {
@@ -736,23 +739,17 @@
                 let roll = Math.random();
                 let objX = Math.random() * (canvas.width - 60) + 30;
                 let objY = -30;
-                
-                // Dificultad base (velocidad de caída) aumenta
                 let baseObjSpeed = (2.5 + Math.random() * 2) * (1 + score * 0.005);
 
                 if (roll < 0.65) { 
-                    // 65% Café
                     objects.push({ type: 'coffee', x: objX, y: objY, speed: baseObjSpeed, radius: 12 });
                 } else if (roll < 0.90) {
-                    // 25% Yunque (empiezan a caer tras 10 puntos o nivel 2)
                     if (score >= 10 || currentLevel > 1) {
-                        // Yunques caen más rápido y son más grandes
                         objects.push({ type: 'anvil', x: objX, y: objY, speed: baseObjSpeed * 1.5, radius: 18 });
-                    } else { // Si no, café extra
+                    } else {
                         objects.push({ type: 'coffee', x: objX, y: objY, speed: baseObjSpeed, radius: 12 });
                     }
                 } else {
-                    // 10% Estrella (solo si no tiene el poder activo ya)
                     if (!cat.isPoweredUp && score > 5) {
                          objects.push({ type: 'star', x: objX, y: objY, speed: baseObjSpeed * 0.8, radius: 15 });
                     } else {
@@ -761,13 +758,10 @@
                 }
             }
 
-            // Subir de nivel sutilmente
             currentLevel = 1 + Math.floor(score / 25);
 
-
-            // 5. Actualizar objetos y detectar colisiones
             const catHitbox = {
-                x: cat.x + 10, y: cat.y, // Ajuste hitbox sutil
+                x: cat.x + 10, y: cat.y,
                 width: cat.width - 20, height: cat.height
             };
 
@@ -775,76 +769,71 @@
                 let obj = objects[i];
                 obj.y += obj.speed;
 
-                // Detección de colisión Circular (simple pero efectiva para objetos cayendo)
-                // Usamos el centro del gato aproximado
                 let catCenterX = cat.x + cat.width / 2;
                 let catCenterY = cat.y + cat.height / 2;
                 
-                // Distancia entre centros
                 let distX = Math.abs(obj.x - catCenterX);
                 let distY = Math.abs(obj.y - catCenterY);
                 
-                // Una hitbox rectangular aproximada para el gato, circular para el objeto
                 let collision = false;
                 if (distX < (catHitbox.width/2 + obj.radius) && distY < (catHitbox.height/2 + obj.radius)) {
                     collision = true;
                 }
 
                 if (collision) {
-                    // Procesar Colisión según tipo
                     if (obj.type === 'coffee') {
                         score++;
                     } else if (obj.type === 'anvil') {
-                        lives--;
-                        if (lives <= 0) {
-                            gameOver();
+                        // SI TIENE PODER DE ESTRELLA, LOS YUNQUES NO LE HACEN DAÑO
+                        if (!cat.isPoweredUp) {
+                            lives--;
+                            if (lives <= 0) gameOver();
                         }
                     } else if (obj.type === 'star') {
                         cat.isPoweredUp = true;
                         cat.powerupTimer = cat.powerupDuration;
                     }
                     
-                    objects.splice(i, 1); // Quitar objeto
+                    objects.splice(i, 1);
                     continue;
                 }
 
-                // Desaparecer si toca el suelo
-                if (obj.y > canvas.height + 30) {
+                // SI EL CAFÉ CAE AL SUELO (no se recolecta), SE PIERDE UNA VIDA
+                if (obj.y > canvas.height - 20) {
+                    if (obj.type === 'coffee') {
+                        lives--;
+                        if (lives <= 0) gameOver();
+                    }
                     objects.splice(i, 1);
                 }
             }
         }
 
-        // --- RENDERIZADO PRINCIPAL (BUCLE) ---
-
+        // --- RENDERIZADO INTERFAZ Y BUCLE ---
         function drawUI() {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            ctx.fillRect(0, 0, canvas.width, 45); // Barra superior de UI
+            ctx.fillRect(0, 0, canvas.width, 45);
 
             ctx.fillStyle = '#ffffff'; ctx.font = 'bold 20px Segoe UI, sans-serif'; ctx.textBaseline = 'middle';
             
-            // Puntos
             ctx.fillText(`☕ Cafés: ${score}`, 20, 22);
 
-            // Nivel
             ctx.fillStyle = '#aaa'; ctx.font = '16px Segoe UI';
-            ctx.fillText(`Nivel: ${currentLevel}`, 140, 22);
+            ctx.fillText(`Nivel: ${currentLevel}`, 150, 22);
 
-            // Poder Estrella (Barra de tiempo si está activo)
             if (cat.isPoweredUp) {
                 let barWidth = 100;
                 let currentBarWidth = (cat.powerupTimer / cat.powerupDuration) * barWidth;
-                ctx.fillStyle = 'rgba(255, 220, 0, 0.2)'; ctx.fillRect(230, 15, barWidth, 14);
-                ctx.fillStyle = '#ffe000'; ctx.fillRect(230, 15, currentBarWidth, 14);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Segoe UI'; ctx.fillText('✨ STAR!', 240, 22);
+                ctx.fillStyle = 'rgba(255, 220, 0, 0.2)'; ctx.fillRect(240, 15, barWidth, 14);
+                ctx.fillStyle = '#ffe000'; ctx.fillRect(240, 15, currentBarWidth, 14);
+                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Segoe UI'; ctx.fillText('✨ INVENCIBLE', 248, 22);
             }
 
-            // Vidas (Iconos de gato del color seleccionado)
-            ctx.font = 'bold 20px Segoe UI'; ctx.fillStyle = CAT_PALETTES[selectedCatColor].body;
-            let livesX = canvas.width - 20;
-            for (let i = 0; i < lives; i++) {
-                ctx.fillText('🐾', livesX - i * 25 - 15, 22);
-            }
+            // MUESTRAMOS LAS VIDAS CON CORAZONES (❤️)
+            ctx.font = '18px Segoe UI';
+            let hearts = '';
+            for (let i = 0; i < lives; i++) hearts += '❤️ ';
+            ctx.fillText(hearts, canvas.width - 120, 22);
         }
 
         function gameLoop() {
@@ -853,37 +842,32 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Fondo estático
-            drawOfficeBackground();
+            // Renderizar Fondo (Día si score < 50, Noche si score >= 50)
+            drawOfficeBackground(score);
             
-            // Objetos cayendo
             objects.forEach(obj => {
                 if (obj.type === 'coffee') drawCoffee(ctx, obj.x, obj.y, time);
                 else if (obj.type === 'anvil') drawAnvil(ctx, obj.x, obj.y);
                 else if (obj.type === 'star') drawStar(ctx, obj.x, obj.y, time);
             });
 
-            // Jugador (Gato) con efectos de poder si corresponde
             let opacity = 1;
             let currentAngle = cat.rotationAngle;
 
             if (cat.isPoweredUp) {
-                // Brillo de colores (cambia el tono sutilmente)
                 let hue = (time % 1000) / 1000 * 360;
                 ctx.shadowColor = `hsla(${hue}, 100%, 70%, 0.8)`;
                 ctx.shadowBlur = 20;
             }
 
-            // Dibujar gato seleccionado
             drawGenericCat(
                 ctx, cat.x, cat.y, cat.width, cat.height, 
                 CAT_PALETTES[selectedCatColor], 
                 cat.facingLeft, cat.isJumping, currentAngle, opacity
             );
             
-            ctx.shadowBlur = 0; // Reset shadow
+            ctx.shadowBlur = 0;
 
-            // Interfaz
             drawUI();
 
             update();
@@ -893,8 +877,7 @@
             }
         }
 
-        // Renderizado inicial del menú
-        drawOfficeBackground();
+        drawOfficeBackground(0);
     </script>
 </body>
 </html>
